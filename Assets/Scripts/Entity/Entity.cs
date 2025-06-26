@@ -1,28 +1,13 @@
 using UnityEngine;
 
-public class Entity : MonoBehaviour
+// <summary>
+// 게임 내 플레이어 및 적의 기본적인 속성과 행동을 정의하는 모든 캐릭터의 부모 클래스
+public abstract class Entity : MonoBehaviour, IEntity
 {
-    [Header("Entity Stats")]
-    [SerializeField] protected int health;
-    [SerializeField] protected int damage;
+    public bool IsAlive { get; protected set; } = true;
+    public Vector3 Position => transform.position;
 
-    public virtual void TakeDamage(int amount)
-    {
-        health -= amount;
-        if (health <= 0)
-        {
-            Die();
-        }
-    }
-
-    public virtual void Attack(Entity target)
-    {
-        target.TakeDamage(damage);
-    }
-
-    protected virtual void Die()
-    {
-        // Handle character death (e.g., play animation, disable character)
-        gameObject.SetActive(false);
-    }
+    public abstract void TakeDamage(float amount);
+    public abstract void Attack(IEntity target);
+    protected abstract void Die();
 }
