@@ -1,23 +1,26 @@
 using UnityEngine;
+using UnityEngine.UI;
 
 // <summary>
 // 게임 내 적의 기본적인 속성과 행동을 정의하는 모든 적의 부모 클래스
 public class Enemy : Entity
 {
     private float _maxHealth;
+    private float _currentHealth;
     private float _moveSpeed;
     private float _attackDamage;
     private float _attackSpeed;
     private float _attackRange;
     private float _detectionRange;
-    private float _currentHealth;
     private float _lastAttackTime;
 
-    private static Vector3 _targetPosition;
+    public HealthBar hpBar;
 
-    private IEnemyBehavior behavior;
+    protected Vector3 directionToPlayer;
 
-    private Rigidbody _rigidbody;
+    protected IEnemyBehavior behavior;
+
+    public Rigidbody _Rigidbody { get; private set; }
 
     private static Player _player;
     protected static Player _Player
@@ -30,40 +33,36 @@ public class Enemy : Entity
         }
     }
 
-    [SerializeField] public EnemyData _EnemyData { get; private set; }
+    [SerializeField] public EnemyData _EnemyData;
 
-    private void Awake()
+    protected virtual void Awake()
     {
         InitEnemy();
     }
 
-    private void Start()
+    protected virtual void Start()
     {
         behavior = _EnemyData.enemyType switch
         {
-            EnemyType.Turret => new TurretBehaviour(),
             EnemyType.Charger => new ChargerBehaviour(),
             EnemyType.Shooter => new ShooterBehaviour(),
+            EnemyType.Turret => new TurretBehaviour(),
             _ => new ChargerBehaviour()
         };
     }
 
-    private void Update()
+    protected virtual void Update()
     {
         if (!IsAlive) return;
 
-        Vector3 directionToPlayer = (_Player.transform.position - transform.position).normalized;
-        float distanceToPlayer = Vector3.Distance(transform.position, _Player.transform.position);
+        directionToPlayer = (_Player.transform.position - transform.position).normalized;
 
-        if (distanceToPlayer <= _detectionRange)
-        {
-            behavior?.Execute(this, _Player.transform);
-        }
+        
     }
 
     public void InitEnemy()
     {
-        _rigidbody = GetComponent<Rigidbody>();
+        _Rigidbody = GetComponent<Rigidbody>();
         
         _maxHealth = _EnemyData.maxHealth;
         _moveSpeed = _EnemyData.moveSpeed;
@@ -74,21 +73,23 @@ public class Enemy : Entity
         _currentHealth = _maxHealth;
     }
 
-    public void Move(Vector2 direction)
-    {
-        if (_targetPosition == null || _rigidbody == null || _EnemyData.enemyType == EnemyType.Turret)
-            return;
-
-        _rigidbody.MovePosition(_rigidbody.position + (Vector3)direction * _EnemyData.moveSpeed * Time.deltaTime);
-        // Implement movement logic here
-    }
-
     public override void TakeDamage(float amount)
     {
         _currentHealth -= amount;
+
         if (_currentHealth <= 0 && IsAlive)
         {
             Die();
+        }
+        else
+        {
+            if (hpBar == null)
+            {
+                hpBar = HealthBarManager.Instance.RequestBar(transform);
+                Debug.Log($"{gameObject.name}의 체력바 초기화");
+            }
+
+            hpBar.UpdateHealth(_currentHealth / _maxHealth);
         }
     }
 
@@ -106,7 +107,8 @@ public class Enemy : Entity
     protected override void Die()
     {
         IsAlive = false;
-        gameObject.SetActive(false);
+        Destroy(gameObject);
+        // gameObject.SetActive(false);
         // 추가적인 사망 처리 (파티클 효과, 사운드 등)
     }
 }

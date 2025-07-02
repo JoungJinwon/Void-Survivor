@@ -1,21 +1,25 @@
-Shader "Custom/Enemy"
+Shader "Custom/Bullet"
 {
     Properties
     {
-        _Color ("Color", Color) = (1, 1, 1, 1)
-        _MainTex ("Texture", 2D) = "white" {}
+        _Color ("Bullet Color", Color) = (0.3, 0.8, 1, 1)
+        _Glow ("Glow Intensity", Range(0,5)) = 2
+        _Speed ("Flicker Speed", Range(0,10)) = 2
+        //_MainTex ("Texture", 2D) = "white" {} // 텍스처 사용 안함
     }
     SubShader
     {
-        Tags { "RenderType"="Opaque" }
+        Tags { "RenderType"="Transparent" "Queue"="Transparent" }
         LOD 100
+        Blend SrcAlpha One
+        ZWrite Off
+        Cull Off
 
         Pass
         {
             CGPROGRAM
             #pragma vertex vert
             #pragma fragment frag
-            // make fog work
             #pragma multi_compile_fog
 
             #include "UnityCG.cginc"
@@ -33,24 +37,34 @@ Shader "Custom/Enemy"
                 float4 vertex : SV_POSITION;
             };
 
-            sampler2D _MainTex;
-            float4 _MainTex_ST;
             fixed4 _Color;
+            float _Glow;
+            float _Speed;
 
             v2f vert (appdata v)
             {
                 v2f o;
                 o.vertex = UnityObjectToClipPos(v.vertex);
-                o.uv = TRANSFORM_TEX(v.uv, _MainTex);
+                o.uv = v.uv;
                 UNITY_TRANSFER_FOG(o,o.vertex);
                 return o;
             }
 
             fixed4 frag (v2f i) : SV_Target
             {
-                // sample the texture
-                fixed4 col = tex2D(_MainTex, i.uv);
-                col *= _Color; // _Color 값을 곱해 머티리얼 색상 적용
+                // 원형 그라데이션: 중심(0.5,0.5)에서 멀수록 투명
+                float2 center = float2(0.5, 0.5);
+                float dist = distance(i.uv, center);
+
+                // Glow Flicker: 시간에 따라 밝기 변화
+                float flicker = 0.7 + 0.3 * sin(_Time.y * _Speed);
+
+                // 중심이 밝고, 테두리가 투명한 원형
+                float alpha = saturate((_Glow * (0.5 - dist)) * flicker);
+
+                fixed4 col = _Color;
+                col.a *= alpha;
+
                 // apply fog
                 UNITY_APPLY_FOG(i.fogCoord, col);
                 return col;

@@ -18,8 +18,6 @@ public class PlayerController : MonoBehaviour
     {
         _rigidbody = GetComponent<Rigidbody>();
         _rigidbody.freezeRotation = true;
-
-
     }
 
     private void Start()

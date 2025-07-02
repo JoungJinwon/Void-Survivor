@@ -1,7 +1,9 @@
 
 public enum EnemyType
 {
-    Turret,
     Charger,
     Shooter,
+    Turret,
+    Splitter,
+    Bomber
 }
