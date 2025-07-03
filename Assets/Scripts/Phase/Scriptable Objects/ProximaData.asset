@@ -9,14 +9,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a3d7b7815893bee459dfb4487f0c8e57, type: 3}
-  m_Name: eData_chargerS
+  m_Script: {fileID: 11500000, guid: 6efe77a0cc1d5a84e83fb4b3b8b1eb70, type: 3}
+  m_Name: ProximaData
   m_EditorClassIdentifier: 
-  maxHealth: 50
-  moveSpeed: 3
-  attackDamage: 5
-  attackSpeed: 1
-  attackRange: 10
-  detectionRange: 10
-  expReward: 10
-  enemyType: 0
+  phaseName: Proxima
+  enemies:
+  - {fileID: 8122375914061252992, guid: d029945160dd5b0469896835f151b5e5, type: 3}
+  spawnTime: 030000000a000000140000001e00000028000000

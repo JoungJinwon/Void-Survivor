@@ -22,4 +22,11 @@ Enemy Behaviour 세분화 및 동작 로직 수정
 HP Bar 일부 구현
 
 
+25/07/03
+오브젝트 풀링 기법을 활용한 HP Bar 구현 완료
+Phase를 관리하는 Phase Data 및 Phase Manager 일부 구현
+적 처치 시 경험치 추가
+
+
 25/07/
+

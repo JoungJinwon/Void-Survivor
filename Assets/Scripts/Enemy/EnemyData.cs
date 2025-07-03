@@ -12,5 +12,6 @@ public class EnemyData : ScriptableObject
     public float attackSpeed;
     public float attackRange;
     public float detectionRange;
+    public float expReward;
     public EnemyType enemyType;
 }

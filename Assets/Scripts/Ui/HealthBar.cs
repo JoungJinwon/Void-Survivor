@@ -48,7 +48,7 @@ public class HealthBar : MonoBehaviour
                 canvasRect, screenPos, cam, out localPoint))
             {
                 // UI의 로컬 좌표로 변환하여 위치 지정
-                (transform as RectTransform).localPosition = localPoint;
+                (transform as RectTransform).localPosition = localPoint + Vector2.down * 2;
             }
         }
 

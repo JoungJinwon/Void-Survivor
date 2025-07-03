@@ -8,23 +8,47 @@ using static SceneData;
 /// </summary>
 public class GameManager : Singleton<GameManager>
 {
+    public bool IsGamePaused { get; private set; } = false;
+    public float GameTime { get; private set; } = 0f; // 게임 시간
+
     public CurrentScene currentScene = CurrentScene.Main;
 
     UiManager _UM;
+    PhaseManager _PM;
 
     private void Awake()
     {
         InitSingleton();
-
-        if (UiManager.Instance != null)
-            _UM = UiManager.Instance;
-
-        SceneManager.sceneLoaded += OnSceneLoaded;
+        InitGameManager();
 
         Debug.Log("GameManager Awake Ready");
     }
 
-    #region Scene Management
+    private void Update()
+    {
+        if (currentScene == CurrentScene.Survival && !IsGamePaused)
+        {
+            GameTime += Time.deltaTime;
+        }
+    }
+
+#region Initialization
+    private void InitGameManager()
+    {
+        if (UiManager.Instance != null)
+            _UM = UiManager.Instance;
+        if (PhaseManager.Instance != null)
+            _PM = PhaseManager.Instance;
+            
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+    private void InitSurvivalScene()
+    {
+        GameTime = 0f;
+    }
+#endregion
+
+#region Scene Management
     /// <summary>
     /// Load Scene by INDEX
     /// </summary>
@@ -102,14 +126,14 @@ public class GameManager : Singleton<GameManager>
                 break;
         }
     }
-    #endregion
+#endregion
 
-    #region Game Control
+#region Game Control
     public void GameExit()
     {
         Debug.Log("Game Exiting...");
         Application.Quit();
     }
-    #endregion
+#endregion
 
 }

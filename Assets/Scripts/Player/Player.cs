@@ -9,10 +9,14 @@ public class Player : Entity
     [SerializeField] private float attackSpeed = 1f;
 
     private int level = 1;
+    private int maxLevel = 20;
+    private float exp;
+    private float maxExp = 100f;
     private float currentHealth;
     private float lastAttackTime;
 
     [SerializeField] private Slider hpBar; // Player의 체력바를 표시할 Slider UI
+    [SerializeField] private Slider expBar; // Player의 경험치를 표시할 Slider UI
 
     [SerializeField]
     private SkillManager skillManager;
@@ -65,5 +69,36 @@ public class Player : Entity
     {
         IsAlive = false;
         // 게임 오버 처리
+    }
+
+    private void GainExp(float amount)
+    {
+        if (level == maxLevel) return;
+
+        exp += amount;
+        if (exp >= maxExp)
+        {
+            exp -= maxExp;
+            LevelUp();
+        }
+
+        expBar.value = exp / maxExp;
+    }
+
+    private void LevelUp()
+    {
+        if (level < maxLevel)
+        {
+            level++;
+            maxHealth += 10f; // 레벨업 시 최대 체력 증가
+            attackDamage += 2f; // 레벨업 시 공격력 증가
+            attackSpeed -= 0.1f; // 레벨업 시 공격 속도 증가
+            maxExp = level * 100f;
+
+            currentHealth = maxHealth; // 레벨업 시 체력 회복
+
+            if (hpBar != null)
+                hpBar.maxValue = maxHealth;
+        }
     }
 }
