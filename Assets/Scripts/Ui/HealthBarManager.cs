@@ -44,7 +44,7 @@ public class HealthBarManager : MonoBehaviour
     public HealthBar RequestBar(Transform target)
     {
         HealthBar bar = healthBarPool.Count > 0 ? healthBarPool.Dequeue() : Instantiate(healthBarPrefab, canvasRoot).GetComponent<HealthBar>();
-        
+
         bar.Initialize(target, mainCamera);
         activeBars.Add(bar);
         return bar;
@@ -54,5 +54,10 @@ public class HealthBarManager : MonoBehaviour
     {
         if (activeBars.Contains(bar)) activeBars.Remove(bar);
         healthBarPool.Enqueue(bar);
+    }
+
+    public bool IsBarActive(HealthBar bar)
+    {
+        return activeBars.Contains(bar);
     }
 }

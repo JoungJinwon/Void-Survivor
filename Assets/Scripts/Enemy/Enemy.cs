@@ -14,7 +14,7 @@ public class Enemy : Entity
     private float _detectionRange;
     private float _lastAttackTime;
 
-    public HealthBar hpBar;
+    private HealthBar hpBar;
 
     protected Vector3 directionToPlayer;
 
@@ -83,7 +83,7 @@ public class Enemy : Entity
         }
         else
         {
-            if (hpBar == null)
+            if (hpBar == null || !HealthBarManager.Instance.IsBarActive(hpBar))
             {
                 hpBar = HealthBarManager.Instance.RequestBar(transform);
                 Debug.Log($"{gameObject.name}의 체력바 초기화");
@@ -107,6 +107,8 @@ public class Enemy : Entity
     protected override void Die()
     {
         IsAlive = false;
+        if (HealthBarManager.Instance.IsBarActive(hpBar))
+            hpBar.Deactivate();
         Destroy(gameObject);
         // gameObject.SetActive(false);
         // 추가적인 사망 처리 (파티클 효과, 사운드 등)
