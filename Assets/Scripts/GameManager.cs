@@ -9,7 +9,7 @@ using static SceneData;
 public class GameManager : Singleton<GameManager>
 {
     public bool IsGamePaused { get; private set; } = false;
-    public float GameTime { get; private set; } = 0f; // 게임 시간
+    public float GameTime { get; private set; } = 0f; // 게임 시간(seconds)
 
     public CurrentScene currentScene = CurrentScene.Main;
 
@@ -29,6 +29,9 @@ public class GameManager : Singleton<GameManager>
         if (currentScene == CurrentScene.Survival && !IsGamePaused)
         {
             GameTime += Time.deltaTime;
+
+            if (_PM != null)
+                _PM.UpdatePhase(GameTime);
         }
     }
 
