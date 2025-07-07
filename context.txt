@@ -28,5 +28,13 @@ Phase를 관리하는 Phase Data 및 Phase Manager 일부 구현
 적 처치 시 경험치 추가
 
 
-25/07/
+25/07/04
+Enemy(Charger S, M, L, G) 종류 추가
+Phase Manager 일부 구현
 
+
+25/07/05
+
+
+
+25/07/0

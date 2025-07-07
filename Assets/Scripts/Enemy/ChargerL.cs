@@ -1,4 +1,5 @@
-public class SmallCharger : Enemy
+
+public class ChargerL : Enemy
 {
     protected override void Awake()
     {
