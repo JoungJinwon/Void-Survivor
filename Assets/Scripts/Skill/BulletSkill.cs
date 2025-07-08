@@ -5,7 +5,7 @@ using UnityEngine;
 public class BulletSkill : Skill
 {
     public int damage;
-    public float bulletSpeed = 30.0f;
+    public float bulletSpeed = 40.0f;
     public GameObject bulletPrefab;
 
     private float lastAttackTime;

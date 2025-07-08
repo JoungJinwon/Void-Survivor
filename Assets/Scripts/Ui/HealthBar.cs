@@ -7,7 +7,7 @@ public class HealthBar : MonoBehaviour
     [SerializeField] private Image fillImage;
     private Transform target;
     private Camera cam;
-    private float maxDuration = 3f;
+    private float maxDuration = 5f;
     private float visibleUntil;
     private bool isActive;
 

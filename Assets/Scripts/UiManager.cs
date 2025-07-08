@@ -1,7 +1,5 @@
-using System;
 using System.Collections;
 using TMPro;
-using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -9,9 +7,10 @@ using UnityEngine.UI;
 public class UiManager : Singleton<UiManager>
 {
     public bool IsFading { get; private set; }
-    public bool InitComplete {get; private set;}
+    public bool InitComplete { get; private set; }
 
-    [SerializeField] [Tooltip("Canvas which is used for Fading Effect")]
+    [SerializeField]
+    [Tooltip("Canvas which is used for Fading Effect")]
     private GameObject fadeCanvas;
 
     [Header("Fade Effect")]
@@ -19,9 +18,12 @@ public class UiManager : Singleton<UiManager>
     private Animator _fadeAnimator;
     [Space(10)]
 
+    [Header("Survival UI")]
+    public TextMeshProUGUI phaseText;
+
     public GameManager _GM;
 
-#region Unity Event Methods
+    #region Unity Event Methods
     private void Awake()
     {
         InitSingleton();
@@ -32,7 +34,7 @@ public class UiManager : Singleton<UiManager>
             Debug.LogWarning("UI Manager: GM 어딨어?");
 
         // SceneManager.sceneLoaded += OnSceneLoaded;
-        
+
         Debug.Log("UiManager Awake Ready");
     }
 
@@ -55,11 +57,11 @@ public class UiManager : Singleton<UiManager>
                 break;
         }
     }
-#endregion
+    #endregion
 
-#region Initialization
+    #region Initialization
     public void InitUiManager_Main()
-    {        
+    {
         FindFadeCanvas();
 
         InitComplete = true;
@@ -67,7 +69,7 @@ public class UiManager : Singleton<UiManager>
     }
 
     public void InitUiManager_PlayerSettings()
-    {        
+    {
         FindFadeCanvas();
 
         InitComplete = true;
@@ -86,10 +88,10 @@ public class UiManager : Singleton<UiManager>
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
     }
-#endregion
+    #endregion
 
 
-#region Fade Effect
+    #region Fade Effect
     public void FindFadeCanvas()
     {
         fadeCanvas = GameObject.Find("Fade Canvas");
@@ -136,6 +138,13 @@ public class UiManager : Singleton<UiManager>
         IsFading = false;
         Debug.Log("UI Manager: Fade Out Complete");
     }
-#endregion
+    #endregion
+
+    #region Survival UI
+    public void UpdatePhaseText(string phaseName)
+    {
+
+    }
+    #endregion
 
 }

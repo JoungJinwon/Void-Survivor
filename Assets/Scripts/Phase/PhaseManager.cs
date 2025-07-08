@@ -8,19 +8,25 @@ public class PhaseManager : Singleton<PhaseManager>
 {
     private const int NumSpawnPoints = 8;
 
+    private bool IsPhaseActive = false;
+
     private int phaseIndex = 0;
     private int spawnTimeIndex = 0;
 
     private float currentPhaseStartTime;
-    private float nextPhaseStartTime;
 
-    private int[] currentPhaseSpawnTimes;
-
-    public Transform[] enemySpawnPoints; // 총 8방향
+    // 총 8방향의 Enemy Spawners
+    public Transform[] enemySpawnPoints;
 
     private PhaseData currentPhaseData;
     [SerializeField]
     private PhaseData[] phaseDatas;
+
+    // 현재 Phase의 남아있는 적 수
+    private int enemyCount = 0;
+
+    // 현재 Phase의 스폰 정보
+    private List<PhaseData.SpawnInfo> currentSpawnInfos;
 
     private void Awake()
     {
@@ -30,6 +36,7 @@ public class PhaseManager : Singleton<PhaseManager>
     private void Start()
     {
         InitPhaseManager();
+        SetPhase(0);
     }
 
     private void InitPhaseManager()
@@ -41,11 +48,6 @@ public class PhaseManager : Singleton<PhaseManager>
             return;
         }
 
-        // 필드 초기화
-        phaseIndex = 0;
-        spawnTimeIndex = 0;
-        nextPhaseStartTime = phaseDatas[phaseIndex + 1].phaseStartTime;
-
         // enemy를 스폰할 Transform 배열 유효성 검사
         if (enemySpawnPoints == null || enemySpawnPoints.Length < NumSpawnPoints)
         {
@@ -56,53 +58,74 @@ public class PhaseManager : Singleton<PhaseManager>
 
     public void UpdatePhase(float gameTime)
     {
-        if (phaseIndex >= phaseDatas.Length) return;
+        if (!IsPhaseActive || currentPhaseData == null) return;
 
-        if (gameTime >= nextPhaseStartTime)
+        // 모든 스폰 타임을 처리했는지 확인
+        if (spawnTimeIndex >= currentSpawnInfos.Count)
         {
-            SetPhase(++phaseIndex);
+            // 남아있는 적이 없으면 다음 Phase로
+            if (enemyCount == 0)
+            {
+                SetPhase(phaseIndex + 1);
+            }
+
+            return;
         }
 
-        if (gameTime >= currentPhaseStartTime + currentPhaseSpawnTimes[spawnTimeIndex])
+        var spawnInfo = currentSpawnInfos[spawnTimeIndex];
+        if (gameTime >= currentPhaseStartTime + spawnInfo.spawnTime)
         {
-            
+            SpawnEnemies(spawnInfo.enemies);
             spawnTimeIndex++;
         }
-
-        
     }
 
     private void SpawnEnemy(Enemy enemyPrefab, Transform spawnPoint)
     {
         if (enemyPrefab == null || spawnPoint == null) return;
         Instantiate(enemyPrefab, spawnPoint.position, spawnPoint.rotation);
+        enemyCount++;
     }
 
-    private void SpawnEnemies()
-    {}
-
-    private void SetPhase(int phaseIndex)
+    private void SpawnEnemies(List<PhaseData.EnemySpawn> enemiesToSpawn)
     {
-        if (phaseIndex >= phaseDatas.Length)
+        foreach (var enemySpawn in enemiesToSpawn)
         {
-            Debug.Log("All Phases Completed");
-            return;
-        }
-        else
-        {
-            currentPhaseData = phaseDatas[phaseIndex];
-            if (currentPhaseData == null || currentPhaseData.enemies == null || currentPhaseData.spawnTime == null)
+            for (int i = 0; i < enemySpawn.count; i++)
             {
-                Debug.LogWarning("유효하지 않은 Phase Data 입니다.");
-                return;
+                int spawnPointIndex = Random.Range(0, NumSpawnPoints);
+                SpawnEnemy(enemySpawn.enemyPrefab, enemySpawnPoints[spawnPointIndex]);
             }
+        }
+    }
 
-            currentPhaseStartTime = currentPhaseData.phaseStartTime;
-            nextPhaseStartTime = phaseDatas[phaseIndex + 1].phaseStartTime;
-            currentPhaseSpawnTimes = currentPhaseData.spawnTime;
-            spawnTimeIndex = 0;
-
+    private void SetPhase(int newPhaseIndex)
+    {
+        if (newPhaseIndex >= phaseDatas.Length)
+        {
+            Debug.Log("모든 Phase를 클리어했습니다.");
+            IsPhaseActive = false;
             return;
         }
+
+        phaseIndex = newPhaseIndex;
+        currentPhaseData = phaseDatas[phaseIndex];
+        if (currentPhaseData == null || currentPhaseData.spawnInfos == null)
+        {
+            Debug.LogWarning("유효하지 않은 Phase Data 입니다.");
+            IsPhaseActive = false;
+            return;
+        }
+
+        currentPhaseStartTime = GameManager.Instance.GameTime;
+        currentSpawnInfos = currentPhaseData.spawnInfos;
+        spawnTimeIndex = 0;
+        IsPhaseActive = true;
+    }
+
+    public void DecreaseEnemyCount()
+    {
+        if (enemyCount > 0)
+            enemyCount--;
     }
 }
