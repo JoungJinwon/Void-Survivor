@@ -107,10 +107,14 @@ public class Enemy : Entity
     protected override void Die()
     {
         IsAlive = false;
+
         if (HealthBarManager.Instance.IsBarActive(hpBar))
             hpBar.Deactivate();
+            
         Destroy(gameObject);
-        // gameObject.SetActive(false);
+
+        PhaseManager.Instance.DecreaseEnemyCount();
+
         // 추가적인 사망 처리 (파티클 효과, 사운드 등)
     }
 }

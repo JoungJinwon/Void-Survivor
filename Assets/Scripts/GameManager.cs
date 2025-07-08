@@ -40,13 +40,15 @@ public class GameManager : Singleton<GameManager>
     {
         if (UiManager.Instance != null)
             _UM = UiManager.Instance;
-        if (PhaseManager.Instance != null)
-            _PM = PhaseManager.Instance;
             
         SceneManager.sceneLoaded += OnSceneLoaded;
     }
+
     private void InitSurvivalScene()
     {
+        if (PhaseManager.Instance != null)
+            _PM = PhaseManager.Instance;
+            
         GameTime = 0f;
     }
 #endregion
@@ -122,6 +124,7 @@ public class GameManager : Singleton<GameManager>
                 UiManager.Instance.InitUiManager_PlayerSettings();
                 break;
             case CurrentScene.Survival:
+                InitSurvivalScene();
                 UiManager.Instance.InitUiManager_Survival();
                 break;
             default:
