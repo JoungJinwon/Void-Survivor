@@ -5,28 +5,31 @@ using UnityEngine.InputSystem;
 public class PlayerController : MonoBehaviour
 {
     [Header("Movement Settings")]
-    [SerializeField] private float moveSpeed = 5f;
+    [SerializeField] private float defaultMoveSpeed = 5f;
     [SerializeField] private float acceleration = 50f;
     [SerializeField] private float deceleration = 50f;
 
     private Vector3 moveInput;
     private Vector3 currentVelocity;
 
+    private Player _player;
     private Rigidbody _rigidbody;
 
     private void Awake()
     {
+        _player = GetComponent<Player>();
         _rigidbody = GetComponent<Rigidbody>();
         _rigidbody.freezeRotation = true;
     }
 
-    private void Start()
-    {
-
-    }
-
     private void FixedUpdate()
     {
+        if (GameManager.Instance.IsGamePaused)
+        {
+            StopPlayer();
+            return;
+        }
+        
         if (_rigidbody != null)
             Move();
     }
@@ -41,7 +44,7 @@ public class PlayerController : MonoBehaviour
 
     private void Move()
     {
-        Vector3 targetVelocity = moveInput * moveSpeed;
+        Vector3 targetVelocity = moveInput * defaultMoveSpeed * _player.GetPlayerMoveSpeed();
 
         currentVelocity = Vector3.MoveTowards(
             currentVelocity,
@@ -50,6 +53,12 @@ public class PlayerController : MonoBehaviour
         );
 
         currentVelocity.y = _rigidbody.linearVelocity.y;
+        _rigidbody.linearVelocity = currentVelocity;
+    }
+
+    private void StopPlayer()
+    {
+        currentVelocity = Vector3.zero;
         _rigidbody.linearVelocity = currentVelocity;
     }
 }

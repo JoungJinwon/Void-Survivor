@@ -5,6 +5,9 @@ public class ChargerBehaviour : IEnemyBehavior
 {
     public void Execute(Enemy enemy, Vector3 directionToPlayer)
     {
+        if (GameManager.Instance.IsGamePaused)
+            return;
+
         Rigidbody _rb = enemy._Rigidbody;
         _rb.MovePosition(_rb.position + directionToPlayer * enemy._EnemyData.moveSpeed * Time.deltaTime);
     }

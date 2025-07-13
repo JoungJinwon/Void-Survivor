@@ -8,6 +8,5 @@ public abstract class Entity : MonoBehaviour, IEntity
     public Vector3 Position => transform.position;
 
     public abstract void TakeDamage(float amount);
-    public abstract void Attack(IEntity target);
     protected abstract void Die();
 }

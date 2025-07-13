@@ -18,5 +18,5 @@ MonoBehaviour:
   attackSpeed: 1
   attackRange: 10
   detectionRange: 10
-  expReward: 50
+  expReward: 100
   enemyType: 0

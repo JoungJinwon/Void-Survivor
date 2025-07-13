@@ -7,11 +7,8 @@ public class Enemy : Entity
 {
     private float _maxHealth;
     private float _currentHealth;
-    private float _moveSpeed;
     private float _attackDamage;
     private float _attackSpeed;
-    private float _attackRange;
-    private float _detectionRange;
     private float _lastAttackTime;
 
     private HealthBar hpBar;
@@ -53,23 +50,18 @@ public class Enemy : Entity
 
     protected virtual void Update()
     {
-        if (!IsAlive) return;
+        if (!IsAlive || GameManager.Instance.IsGamePaused) return;
 
         directionToPlayer = (_Player.transform.position - transform.position).normalized;
-
-        
     }
 
     public void InitEnemy()
     {
         _Rigidbody = GetComponent<Rigidbody>();
-        
+
         _maxHealth = _EnemyData.maxHealth;
-        _moveSpeed = _EnemyData.moveSpeed;
         _attackDamage = _EnemyData.attackDamage;
         _attackSpeed = _EnemyData.attackSpeed;
-        _attackRange = _EnemyData.attackRange;
-        _detectionRange = _EnemyData.detectionRange;
         _currentHealth = _maxHealth;
     }
 
@@ -93,7 +85,7 @@ public class Enemy : Entity
         }
     }
 
-    public override void Attack(IEntity target)
+    public void Attack(IEntity target)
     {
         if (Time.time - _lastAttackTime < _attackSpeed) return;
 
@@ -110,11 +102,21 @@ public class Enemy : Entity
 
         if (HealthBarManager.Instance.IsBarActive(hpBar))
             hpBar.Deactivate();
-            
+
+        _player.GainExp(_EnemyData.expReward);
+
         Destroy(gameObject);
 
         PhaseManager.Instance.DecreaseEnemyCount();
 
         // 추가적인 사망 처리 (파티클 효과, 사운드 등)
+    }
+
+    private void OnTriggerStay(Collider other)
+    {
+        if (other.CompareTag("Player"))
+        {
+            Attack(_player);
+        }
     }
 }

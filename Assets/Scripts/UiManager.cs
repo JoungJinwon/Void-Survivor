@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -18,8 +19,22 @@ public class UiManager : Singleton<UiManager>
     private Animator _fadeAnimator;
     [Space(10)]
 
+    [Header("Player Setting UI")]
+    public GameObject weaponPanel;
+    public Animator weaponPanelAnimator;
+
     [Header("Survival UI")]
     public TextMeshProUGUI phaseText;
+    public TextMeshProUGUI levelText;
+    public TextMeshProUGUI expBarText;
+    public Slider expBar;
+
+    public Canvas skillCanvas;
+    public Image[] skillIcons;
+    public TextMeshProUGUI[] skillHeaderTexts;
+    public TextMeshProUGUI[] skillDecriptionTexts;
+
+    public GameObject pausePanel;
 
     public GameManager _GM;
 
@@ -79,6 +94,7 @@ public class UiManager : Singleton<UiManager>
     public void InitUiManager_Survival()
     {
         FindFadeCanvas();
+
 
         InitComplete = true;
         Debug.Log($"Ui Manager: Survival 씬 초기화 완료");
@@ -140,10 +156,140 @@ public class UiManager : Singleton<UiManager>
     }
     #endregion
 
+    #region Player Setting UI
+    public void ActiveWindowSlide()
+    {
+        if (weaponPanelAnimator != null)
+        {
+            if (weaponPanelAnimator.GetCurrentAnimatorStateInfo(0).IsName("WindowSlide_Active"))
+            {
+                weaponPanelAnimator.SetTrigger("Inactive");
+            }
+            else if (weaponPanelAnimator.GetCurrentAnimatorStateInfo(0).IsName("WindowSlide_Inactive"))
+            {
+                weaponPanelAnimator.SetTrigger("Active");
+            }
+        }
+    }
+    #endregion
+
     #region Survival UI
     public void UpdatePhaseText(string phaseName)
     {
 
+    }
+
+    public void LevelUpUi(int level)
+    {
+        UpdateLevelText(level);
+        ActivateSkillCanvas();
+    }
+
+    public void UpdateLevelText(int level)
+    {
+        levelText.text = $"LEVEL {level}";
+    }
+
+    public void UpdateExpBar(float exp, float maxExp)
+    {
+        expBarText.text = $"{exp}/{maxExp}";
+        expBar.value = exp / maxExp;
+    }
+
+    public void ActivateSkillCanvas()
+    {
+        skillCanvas.gameObject.SetActive(true);
+
+        List<Skill> skills = SkillManager.Instance.GetNewSkills();
+
+        if (skills.Count > 0)
+        {
+            for (int i = 0; i < skills.Count; i++)
+            {
+                skillIcons[i].sprite = skills[i].icon;
+                skillHeaderTexts[i].text = skills[i].skillName;
+                skillDecriptionTexts[i].text = skills[i].skillDescription;
+
+                Debug.Log($"{i}번째 스킬: {skillHeaderTexts[i].text}");
+            }
+        }
+    }
+
+    /// <summary>
+    /// 스킬 선택 완료 후 호출되는 메서드
+    /// </summary>
+    public void OnSkillSelected()
+    {
+        // 스킬 캔버스 비활성화
+        DeactivateSkillCanvas();
+        
+        // 게임 재개
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.ResumeFromLevelUp();
+        }
+        
+        Debug.Log("Skill selected - Game resumed");
+    }
+
+    /// <summary>
+    /// 스킬 캔버스 비활성화
+    /// </summary>
+    public void DeactivateSkillCanvas()
+    {
+        skillCanvas.gameObject.SetActive(false);
+    }
+
+    /// <summary>
+    /// 일시정지 UI 표시 (UI 버튼 클릭 시)
+    /// </summary>
+    public void ShowPauseUI()
+    {
+        if (pausePanel == null)
+        {
+            Debug.LogWarning("Pause Panel is NULL");
+            return;
+        }
+        
+        pausePanel.SetActive(true);
+        Debug.Log("Pause UI Shown");
+    }
+
+    /// <summary>
+    /// 일시정지 UI 숨김 (게임 재개 시)
+    /// </summary>
+    public void HidePauseUI()
+    {
+        if (pausePanel == null)
+        {
+            Debug.LogWarning("Pause Panel is NULL");
+            return;
+        }
+        
+        pausePanel.SetActive(false);
+        Debug.Log("Pause UI Hidden");
+    }
+
+    /// <summary>
+    /// UI 일시정지 버튼 클릭 시 호출
+    /// </summary>
+    public void OnPauseButtonClicked()
+    {
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.PauseFromUI();
+        }
+    }
+
+    /// <summary>
+    /// UI 재개 버튼 클릭 시 호출
+    /// </summary>
+    public void OnResumeButtonClicked()
+    {
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.ResumeFromUI();
+        }
     }
     #endregion
 

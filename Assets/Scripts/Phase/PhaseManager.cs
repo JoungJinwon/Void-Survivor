@@ -24,6 +24,7 @@ public class PhaseManager : Singleton<PhaseManager>
 
     // 현재 Phase의 남아있는 적 수
     private int enemyCount = 0;
+    private List<Enemy> remainingEnemies = new List<Enemy>();
 
     // 현재 Phase의 스폰 정보
     private List<PhaseData.SpawnInfo> currentSpawnInfos;
@@ -58,7 +59,7 @@ public class PhaseManager : Singleton<PhaseManager>
 
     public void UpdatePhase(float gameTime)
     {
-        if (!IsPhaseActive || currentPhaseData == null) return;
+        if (!IsPhaseActive || currentPhaseData == null || GameManager.Instance.IsGamePaused) return;
 
         // 모든 스폰 타임을 처리했는지 확인
         if (spawnTimeIndex >= currentSpawnInfos.Count)
@@ -83,7 +84,8 @@ public class PhaseManager : Singleton<PhaseManager>
     private void SpawnEnemy(Enemy enemyPrefab, Transform spawnPoint)
     {
         if (enemyPrefab == null || spawnPoint == null) return;
-        Instantiate(enemyPrefab, spawnPoint.position, spawnPoint.rotation);
+        Enemy newEnemy =Instantiate(enemyPrefab, spawnPoint.position, spawnPoint.rotation);
+        remainingEnemies.Add(newEnemy);
         enemyCount++;
     }
 
@@ -97,6 +99,11 @@ public class PhaseManager : Singleton<PhaseManager>
                 SpawnEnemy(enemySpawn.enemyPrefab, enemySpawnPoints[spawnPointIndex]);
             }
         }
+    }
+
+    public List<Enemy> GetRemainingEnemies()
+    {
+        return remainingEnemies;
     }
 
     private void SetPhase(int newPhaseIndex)
