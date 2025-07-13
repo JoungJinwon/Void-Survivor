@@ -1,19 +1,19 @@
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 
-public class SkillManager : MonoBehaviour
+public class SkillManager : Singleton<SkillManager>
 {
-    public enum SkillType
-    {
-        Active,     // 플레이어 주 공격 스킬
-        SubActive,  // 플레이어 보조 공격 스킬
-        Passive     // 플레이어 지속 효과, 능력 상승 스킬
-    }
-
+    // 전체 스킬 List
     public List<Skill> skillDatabase = new List<Skill>();
+    // 선택 가능한 스킬 List
     public List<Skill> selectableSkills = new List<Skill>();
+    // 플레이어에게 장착된 스킬 List
     public List<Skill> equippedSkills = new List<Skill>();
+
+    public List<Skill> chosenSkills = new List<Skill>();
+
+    // 업데이트 델리게이트 리스트 추가
+    private List<System.Action> updateActions = new List<System.Action>();
 
     private void Awake()
     {
@@ -26,18 +26,45 @@ public class SkillManager : MonoBehaviour
 
     private void Start()
     {
-        // 게임 시작 시 BulletSkill 자동 장착
-        foreach (var skill in skillDatabase)
+        // foreach (var skill in skillDatabase)
+        // {
+        //     skill.Activate();
+        // }
+    }
+
+    private void Update()
+    {
+        // 등록된 모든 업데이트 델리게이트 호출
+        for (int i = 0; i < updateActions.Count; i++)
         {
-            if (skill is BulletSkill)
-            {
-                AddSkill(skill);
-                break;
-            }
+            updateActions[i]?.Invoke();
         }
     }
 
-#region Skill Management
+    // 외부에서 업데이트 델리게이트 등록
+    public void RegisterUpdate(System.Action updateAction)
+    {
+        if (updateAction != null && !updateActions.Contains(updateAction))
+        {
+            updateActions.Add(updateAction);
+        }
+    }
+
+    // 외부에서 업데이트 델리게이트 해제
+    public void UnregisterUpdate(System.Action updateAction)
+    {
+        if (updateAction != null && updateActions.Contains(updateAction))
+        {
+            updateActions.Remove(updateAction);
+        }
+    }
+
+    #region Skill Management
+    public bool HasSkill(Skill skill)
+    {
+        return equippedSkills.Contains(skill);
+    }
+
     public void AddSkill(Skill skill)
     {
         equippedSkills.Add(skill);
@@ -50,19 +77,44 @@ public class SkillManager : MonoBehaviour
         skill.Upgrade();
     }
 
-    public List<Skill> GetNewSkill()
+    public void SelectSkill(int skillIdx)
     {
-        List<Skill> newSkills = new List<Skill>();
+        Skill selectedSkill = chosenSkills[skillIdx];
+
+        if (HasSkill(selectedSkill))
+        {
+            UpgradeSkill(selectedSkill);
+            Debug.Log($"Skill Manager: {selectedSkill.skillName} 업그레이드!");
+        }
+        else
+        {
+            AddSkill(selectedSkill);
+            Debug.Log($"Skill Manager: {selectedSkill.skillName} 획득!");
+        }
+
+        chosenSkills.Clear();
+
+        // 스킬 선택 완료 후 게임 재개
+        if (UiManager.Instance != null)
+        {
+            UiManager.Instance.OnSkillSelected();
+        }
+    }
+
+    // selectable Skills 리스트에서 3개(새 스킬이 3개 미만이면 해당 개수)만큼의 스킬 리스트를 반환해준다.
+    public List<Skill> GetNewSkills()
+    {
         // selectableSkills에서 3개 랜덤 선택
-        List<Skill> tempList = new List<Skill>(selectableSkills);
-        int count = Mathf.Min(3, tempList.Count);
+        List<Skill> candidateSkillList = new List<Skill>(selectableSkills);
+        int count = Mathf.Min(3, candidateSkillList.Count);
         for (int i = 0; i < count; i++)
         {
-            int idx = Random.Range(0, tempList.Count);
-            newSkills.Add(tempList[idx]);
-            tempList.RemoveAt(idx);
+            int idx = Random.Range(0, candidateSkillList.Count);
+            chosenSkills.Add(candidateSkillList[idx]);
+            candidateSkillList.RemoveAt(idx);
         }
-        return newSkills;
+
+        return chosenSkills;
     }
-#endregion
+    #endregion
 }

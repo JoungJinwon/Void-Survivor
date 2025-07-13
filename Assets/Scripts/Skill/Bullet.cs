@@ -2,6 +2,7 @@ using UnityEngine;
 
 public class Bullet : MonoBehaviour
 {
+    private const int DefaultBulletSpeed = 30;
     private Vector3 moveDirection;
     private float moveSpeed;
     private int damage;
@@ -9,13 +10,15 @@ public class Bullet : MonoBehaviour
     public void Init(Vector3 direction, float speed, int damage)
     {
         moveDirection = direction.normalized;
-        moveSpeed = speed;
+        moveSpeed = speed * DefaultBulletSpeed;
         this.damage = damage;
     }
 
     void Update()
     {
         transform.position += moveDirection * moveSpeed * Time.deltaTime;
+
+        Destroy(gameObject, 5f);
     }
 
     private void OnTriggerEnter(Collider other)

@@ -13,8 +13,10 @@ public class GameManager : Singleton<GameManager>
 
     public CurrentScene currentScene = CurrentScene.Main;
 
-    UiManager _UM;
-    PhaseManager _PM;
+    public Player _Player { get; private set; }
+
+    public UiManager _UM { get; private set; }
+    public PhaseManager _PM { get; private set; }
 
     private void Awake()
     {
@@ -35,13 +37,19 @@ public class GameManager : Singleton<GameManager>
         }
     }
 
-#region Initialization
+    #region Initialization
     private void InitGameManager()
     {
         if (UiManager.Instance != null)
             _UM = UiManager.Instance;
-            
+
         SceneManager.sceneLoaded += OnSceneLoaded;
+
+        _Player = FindFirstObjectByType<Player>();
+        if (_Player == null)
+            Debug.LogWarning("Game Manager: Player를 찾지 못했습니다");
+        else
+            Debug.Log("Game Manager: Player를 성공적으로 찾았습니다.");
     }
 
     private void InitSurvivalScene()
@@ -135,6 +143,74 @@ public class GameManager : Singleton<GameManager>
 #endregion
 
 #region Game Control
+    /// <summary>
+    /// 게임을 일시정지합니다
+    /// </summary>
+    public void PauseGame()
+    {
+        if (IsGamePaused) return;
+
+        IsGamePaused = true;
+        Debug.Log("Game Paused");
+    }
+
+    /// <summary>
+    /// 게임을 재개합니다
+    /// </summary>
+    public void ResumeGame()
+    {
+        if (!IsGamePaused) return;
+
+        IsGamePaused = false;
+        Debug.Log("Game Resumed");
+    }
+
+    /// <summary>
+    /// 플레이어 레벨업 시 게임을 일시정지합니다 (스킬 선택용)
+    /// </summary>
+    public void PauseForLevelUp()
+    {
+        PauseGame();
+        Debug.Log("Game Paused for Level Up - Waiting for skill selection");
+    }
+
+    /// <summary>
+    /// 스킬 선택 완료 후 게임을 재개합니다
+    /// </summary>
+    public void ResumeFromLevelUp()
+    {
+        ResumeGame();
+        Debug.Log("Game Resumed from Level Up - Skill selected");
+    }
+
+    /// <summary>
+    /// UI 일시정지 버튼 클릭 시 호출
+    /// </summary>
+    public void PauseFromUI()
+    {
+        PauseGame();
+        // UI 매니저에게 일시정지 UI 표시 요청
+        if (_UM != null)
+        {
+            _UM.ShowPauseUI();
+        }
+        Debug.Log("Game Paused from UI Button");
+    }
+
+    /// <summary>
+    /// UI 재개 버튼 클릭 시 호출
+    /// </summary>
+    public void ResumeFromUI()
+    {
+        ResumeGame();
+        // UI 매니저에게 일시정지 UI 숨김 요청
+        if (_UM != null)
+        {
+            _UM.HidePauseUI();
+        }
+        Debug.Log("Game Resumed from UI Button");
+    }
+
     public void GameExit()
     {
         Debug.Log("Game Exiting...");

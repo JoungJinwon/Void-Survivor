@@ -9,14 +9,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a3d7b7815893bee459dfb4487f0c8e57, type: 3}
-  m_Name: eData_chargerL
+  m_Script: {fileID: 11500000, guid: ec5cb2e2052dfe04abddce5601aab067, type: 3}
+  m_Name: Bullet Weapon
   m_EditorClassIdentifier: 
-  maxHealth: 150
-  moveSpeed: 3
   attackDamage: 10
-  attackSpeed: 1
-  attackRange: 10
-  detectionRange: 10
-  expReward: 30
-  enemyType: 0
+  attackSpeed: 2
+  bulletPrefab: {fileID: 525441139106314015, guid: 20b7c3826b6421c42b72c93bc2260de6, type: 3}
