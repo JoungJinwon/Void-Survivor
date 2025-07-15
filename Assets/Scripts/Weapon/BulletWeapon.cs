@@ -60,7 +60,7 @@ public class BulletWeapon : Weapon
             for (int i = 0; i < projectileCount; i++)
             {
                 // 발사 방향을 기준으로 수직 방향으로 오프셋 계산
-                float offset = (i - (projectileCount - 1) / 2f) * 0.5f; // 0.5f는 발사체 간 간격
+                float offset = (i - (projectileCount - 1) / 2f) * 1f; // 0.5f는 발사체 간 간격
                 Vector3 rightVector = Vector3.Cross(directionToEnemy, Vector3.up).normalized;
                 Vector3 startPosition = player.transform.position + rightVector * offset;
                 

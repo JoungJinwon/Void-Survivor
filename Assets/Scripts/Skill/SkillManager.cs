@@ -70,6 +70,8 @@ public class SkillManager : Singleton<SkillManager>
         equippedSkills.Add(skill);
         selectableSkills.Remove(skill);
         skill.Activate();
+
+        UiManager.Instance.UpdateEquippedSkillsGrid(skill);
     }
 
     public void UpgradeSkill(Skill skill)
