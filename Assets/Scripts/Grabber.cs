@@ -23,6 +23,7 @@ public class Grabber : MonoBehaviour
     public TextMeshProUGUI[] skillDecriptionTexts;
 
     public GameObject pausePanel;
+    public GameObject equippedSkillGrid;
 
     private void Awake()
     {
@@ -77,11 +78,22 @@ public class Grabber : MonoBehaviour
         _UM.skillHeaderTexts = skillHeaderTexts;
         _UM.skillDecriptionTexts = skillDecriptionTexts;
         _UM.pausePanel = pausePanel;
+        _UM.equippedSkillGrid = equippedSkillGrid;
     }
 
     public void ActiveWindowSlide()
     {
         _UM.ActiveWindowSlide();
+    }
+
+    public void OnPauseButtonClicked()
+    {
+        _UM.OnPauseButtonClicked();
+    }
+
+    public void OnResumeButtonClicked()
+    {
+        _UM.OnResumeButtonClicked();
     }
     #endregion
 }

@@ -3136,7 +3136,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   fadeCanvas: {fileID: 0}
   fadePanel: {fileID: 0}
+  weaponPanel: {fileID: 0}
+  weaponPanelAnimator: {fileID: 0}
   phaseText: {fileID: 0}
+  levelText: {fileID: 0}
+  expBarText: {fileID: 0}
+  expBar: {fileID: 0}
+  skillCanvas: {fileID: 0}
+  skillIcons: []
+  skillHeaderTexts: []
+  skillDecriptionTexts: []
+  pausePanel: {fileID: 0}
+  equippedSkillGrid: {fileID: 0}
+  skillSlotPrefab: {fileID: 6573930540567372288, guid: eedf9d255d27af540b27fe766cb26710, type: 3}
   _GM: {fileID: 1634127920}
 --- !u!4 &1941012565
 Transform:

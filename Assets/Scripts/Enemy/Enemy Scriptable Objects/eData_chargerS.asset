@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: eData_chargerS
   m_EditorClassIdentifier: 
   maxHealth: 50
-  moveSpeed: 3
+  moveSpeed: 3.5
   attackDamage: 5
   attackSpeed: 1
   attackRange: 10

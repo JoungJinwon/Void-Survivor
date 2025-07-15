@@ -35,6 +35,8 @@ public class UiManager : Singleton<UiManager>
     public TextMeshProUGUI[] skillDecriptionTexts;
 
     public GameObject pausePanel;
+    public GameObject equippedSkillGrid;
+    public GameObject skillSlotPrefab;
 
     public GameManager _GM;
 
@@ -55,6 +57,10 @@ public class UiManager : Singleton<UiManager>
 
     public void Start()
     {
+        if (skillSlotPrefab == null)
+        {
+            skillSlotPrefab = Resources.Load<GameObject>("Prefabs/UI/Skill Slot");
+        }
     }
 
     private void Update()
@@ -240,6 +246,26 @@ public class UiManager : Singleton<UiManager>
         skillCanvas.gameObject.SetActive(false);
     }
 
+    public void UpdateEquippedSkillsGrid(Skill skill)
+    {
+        if (equippedSkillGrid == null)
+        {
+            Debug.LogWarning("Ui Manager: Equipped Skill Grid or Skill Slot Prefab is not assigned.");
+            return;
+        }
+
+        GameObject skillSlot = Instantiate(skillSlotPrefab, equippedSkillGrid.transform);
+        Image skillImage = skillSlot.transform.GetChild(0).GetComponent<Image>();
+        if (skillImage != null)
+        {
+            skillImage.sprite = skill.icon;
+            Debug.Log($"Skill {skill.skillName} added to Equipped Skills Grid.");
+            return;
+        }
+        else
+            Debug.LogWarning($"Ui Manager: Could not find child Image component in skill slot for {skill.skillName}");
+    }
+
     /// <summary>
     /// 일시정지 UI 표시 (UI 버튼 클릭 시)
     /// </summary>
@@ -250,7 +276,7 @@ public class UiManager : Singleton<UiManager>
             Debug.LogWarning("Pause Panel is NULL");
             return;
         }
-        
+
         pausePanel.SetActive(true);
         Debug.Log("Pause UI Shown");
     }
@@ -277,8 +303,10 @@ public class UiManager : Singleton<UiManager>
     {
         if (GameManager.Instance != null)
         {
-            GameManager.Instance.PauseFromUI();
+            GameManager.Instance.PauseGame();
         }
+
+        ShowPauseUI();
     }
 
     /// <summary>
@@ -288,8 +316,10 @@ public class UiManager : Singleton<UiManager>
     {
         if (GameManager.Instance != null)
         {
-            GameManager.Instance.ResumeFromUI();
+            GameManager.Instance.ResumeGame();
         }
+
+        HidePauseUI();
     }
     #endregion
 

@@ -183,34 +183,6 @@ public class GameManager : Singleton<GameManager>
         Debug.Log("Game Resumed from Level Up - Skill selected");
     }
 
-    /// <summary>
-    /// UI 일시정지 버튼 클릭 시 호출
-    /// </summary>
-    public void PauseFromUI()
-    {
-        PauseGame();
-        // UI 매니저에게 일시정지 UI 표시 요청
-        if (_UM != null)
-        {
-            _UM.ShowPauseUI();
-        }
-        Debug.Log("Game Paused from UI Button");
-    }
-
-    /// <summary>
-    /// UI 재개 버튼 클릭 시 호출
-    /// </summary>
-    public void ResumeFromUI()
-    {
-        ResumeGame();
-        // UI 매니저에게 일시정지 UI 숨김 요청
-        if (_UM != null)
-        {
-            _UM.HidePauseUI();
-        }
-        Debug.Log("Game Resumed from UI Button");
-    }
-
     public void GameExit()
     {
         Debug.Log("Game Exiting...");
