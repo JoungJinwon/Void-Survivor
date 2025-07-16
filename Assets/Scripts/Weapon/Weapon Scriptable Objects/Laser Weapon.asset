@@ -12,5 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 64787f82f74c2bd41aa2aa50f17c9268, type: 3}
   m_Name: Laser Weapon
   m_EditorClassIdentifier: 
+  projectileCount: 1
   attackDamage: 10
-  attackSpeed: 1
+  attackSound: {fileID: 8300000, guid: 27cb053f4c88c5b419d5a5f5ea9cd7c9, type: 3}
+  laserWidth: 1
+  laserRange: 100
+  laserLinePrefab: {fileID: 9200147239785909054, guid: 75a7fc58b0614534a9a6d406241803e2, type: 3}
+  laserDuration: 0.5

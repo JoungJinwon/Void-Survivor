@@ -46,18 +46,11 @@ public class GameManager : Singleton<GameManager>
         SceneManager.sceneLoaded += OnSceneLoaded;
 
         _Player = FindFirstObjectByType<Player>();
+        
         if (_Player == null)
             Debug.LogWarning("Game Manager: Player를 찾지 못했습니다");
         else
             Debug.Log("Game Manager: Player를 성공적으로 찾았습니다.");
-    }
-
-    private void InitSurvivalScene()
-    {
-        if (PhaseManager.Instance != null)
-            _PM = PhaseManager.Instance;
-            
-        GameTime = 0f;
     }
 #endregion
 
@@ -140,9 +133,19 @@ public class GameManager : Singleton<GameManager>
                 break;
         }
     }
+    
+    private void InitSurvivalScene()
+    {
+        _Player = FindFirstObjectByType<Player>();
+
+        if (PhaseManager.Instance != null)
+            _PM = PhaseManager.Instance;
+            
+        GameTime = 0f;
+    }
 #endregion
 
-#region Game Control
+    #region Game Control
     /// <summary>
     /// 게임을 일시정지합니다
     /// </summary>

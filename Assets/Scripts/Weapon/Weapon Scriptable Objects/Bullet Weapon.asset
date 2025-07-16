@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ec5cb2e2052dfe04abddce5601aab067, type: 3}
   m_Name: Bullet Weapon
   m_EditorClassIdentifier: 
+  projectileCount: 1
   attackDamage: 10
-  attackSpeed: 2
+  attackSound: {fileID: 8300000, guid: ec4275b29b7c02b4b943cf45ce285d3d, type: 3}
   bulletPrefab: {fileID: 525441139106314015, guid: 20b7c3826b6421c42b72c93bc2260de6, type: 3}

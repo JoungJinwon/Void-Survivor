@@ -24,7 +24,7 @@ public class BulletWeapon : Weapon
         {
             weaponLevel++;
             attackDamage += 5f;
-            attackIntervalMultiplier *= 1.1f;
+            attackIntervalMultiplier *= 1.2f;
         }
     }
 
@@ -59,15 +59,18 @@ public class BulletWeapon : Weapon
             
             for (int i = 0; i < projectileCount; i++)
             {
-                // 발사 방향을 기준으로 수직 방향으로 오프셋 계산
-                float offset = (i - (projectileCount - 1) / 2f) * 1f; // 0.5f는 발사체 간 간격
+                // 발사 위치에만 오프셋 적용, 방향은 동일하게 유지
+                float offset = (i - (projectileCount - 1) / 2f) * 1f; // 1f는 발사체 간 간격
                 Vector3 rightVector = Vector3.Cross(directionToEnemy, Vector3.up).normalized;
                 Vector3 startPosition = player.transform.position + rightVector * offset;
                 
-                FireBullet(startPosition, nearestEnemy.transform.position, weaponSpeed);
+                // 모든 총알이 동일한 방향으로 발사
+                FireBullet(startPosition, player.transform.position + directionToEnemy * 100f, weaponSpeed);
             }
             
             lastAttackTime = Time.time;
+
+            player.PlayAttackSound();
 
             Debug.Log($"Bullet Weapon: Fire {projectileCount} bullets to {nearestEnemy}!");
         }

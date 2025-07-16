@@ -4,8 +4,6 @@ Shader "Custom/Bullet"
     {
         _Color ("Bullet Color", Color) = (0.3, 0.8, 1, 1)
         _Glow ("Glow Intensity", Range(0,5)) = 2
-        _Speed ("Flicker Speed", Range(0,10)) = 2
-        //_MainTex ("Texture", 2D) = "white" {} // 텍스처 사용 안함
     }
     SubShader
     {
@@ -39,7 +37,6 @@ Shader "Custom/Bullet"
 
             fixed4 _Color;
             float _Glow;
-            float _Speed;
 
             v2f vert (appdata v)
             {
@@ -56,11 +53,8 @@ Shader "Custom/Bullet"
                 float2 center = float2(0.5, 0.5);
                 float dist = distance(i.uv, center);
 
-                // Glow Flicker: 시간에 따라 밝기 변화
-                float flicker = 0.7 + 0.3 * sin(_Time.y * _Speed);
-
                 // 중심이 밝고, 테두리가 투명한 원형
-                float alpha = saturate((_Glow * (0.5 - dist)) * flicker);
+                float alpha = saturate((_Glow * (0.5 - dist)));
 
                 fixed4 col = _Color;
                 col.a *= alpha;

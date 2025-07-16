@@ -4,6 +4,11 @@ public class Spinner : MonoBehaviour
 {
     private int damage;
 
+    public void Init(int damage)
+    {
+        this.damage = damage;
+    }
+
     private void OnTriggerEnter(Collider other)
     {
         // Enemy 태그가 붙은 오브젝트와 충돌 시 데미지 적용

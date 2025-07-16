@@ -7,9 +7,8 @@ public class SpinnerWeapon : Weapon
 {
     private Transform spinnerOrigin;
 
-    [SerializeField] private int spinnerCount = 2;
-    [SerializeField] private float spinnerSize = 1f;
-    [SerializeField] private float armRadius = 5f;
+    [SerializeField] private float spinnerSize = 2f;
+    [SerializeField] private float armRadius = 10f;
 
     private List<GameObject> equippedSpinners;
 
@@ -28,11 +27,19 @@ public class SpinnerWeapon : Weapon
         {
             GameObject spinnerPivot = new GameObject("Spinner Pivot");
             if (GameManager.Instance._Player != null)
+            {
                 spinnerPivot.transform.SetParent(GameManager.Instance._Player.transform);
+                spinnerPivot.transform.localPosition = Vector3.zero; // 플레이어의 위치에 맞춤
+            }
             else
                 Debug.LogWarning("Spinner Weapon: Player의 트랜스폼이 null이므로 참조할 수 없습니다!");
             spinnerOrigin = spinnerPivot.transform;
         }
+
+        projectileCount = 2;
+        attackIntervalMultiplier = 0.2f;
+
+        CreateSpinners();
     }
 
     public override void UpgradeWeapon()
@@ -47,16 +54,22 @@ public class SpinnerWeapon : Weapon
         else
         {
             weaponLevel++;
-            IncreaseProjectileCount();
             spinnerSize *= 1.3f;
             armRadius *= 1.2f;
+            attackDamage += 5f;
+            attackIntervalMultiplier *= 1.2f;
+            IncreaseProjectileCount();
         }
     }
 
     public override void IncreaseProjectileCount()
     {
-        spinnerCount++;
-        
+        projectileCount++;
+        CreateSpinners();
+    }
+
+    private void CreateSpinners()
+    {
         if (equippedSpinners == null)
             equippedSpinners = new List<GameObject>();
         else
@@ -70,16 +83,18 @@ public class SpinnerWeapon : Weapon
             equippedSpinners.Clear();
         }
 
-        for (int i = 0; i < spinnerCount; i++)
+        for (int i = 0; i < projectileCount; i++)
         {
             // 스피너를 플레이어 주변에 배치
-            float angle = i * (360f / spinnerCount);
-            Vector3 position = new Vector3(Mathf.Cos(angle * Mathf.Deg2Rad) * armRadius, 0, Mathf.Sin(angle * Mathf.Deg2Rad) * armRadius);
-            position += Vector3.up; // 약간 위로 올려서 플레이어와 겹치지 않도록
+            float angle = i * (360f / projectileCount);
+            Vector3 localPosition = new Vector3(Mathf.Cos(angle * Mathf.Deg2Rad) * armRadius, 0, Mathf.Sin(angle * Mathf.Deg2Rad) * armRadius);
 
-            GameObject newSpinner = Instantiate(spinnerPrefab, position, Quaternion.identity);
+            GameObject newSpinner = Instantiate(spinnerPrefab, spinnerOrigin.position, Quaternion.Euler(-90f, 0f, 0f)); // 스피너 모델을 -90도 회전시켜 위를 향하게 한다
             newSpinner.transform.SetParent(spinnerOrigin);
+            newSpinner.transform.localPosition = localPosition;
+            newSpinner.transform.localScale *= spinnerSize; // 스피너 크기 조정
             equippedSpinners.Add(newSpinner);
+            newSpinner.GetComponent<Spinner>().Init((int)attackDamage);
         }
     }
 
@@ -91,16 +106,7 @@ public class SpinnerWeapon : Weapon
         float rotateSpeed = attackIntervalMultiplier * player.GetPlayerAttackSpeed();
         RotateSpinners(rotateSpeed);
 
-        // 스피너 시각 효과
-        if (spinnerPrefab != null)
-        {
-            GameObject spinner = Instantiate(spinnerPrefab, player.transform.position, Quaternion.identity);
-            spinner.transform.SetParent(player.transform);
-        }
-
-        Debug.Log("Spinner attack!");
-
-        lastAttackTime = Time.time;
+        Debug.Log("허리케인 어택!!");
     }
 
     public void RotateSpinners(float rotateSpeed)
