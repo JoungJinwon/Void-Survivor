@@ -12,5 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e5749200ebbf00b44833e79b719915ec, type: 3}
   m_Name: Spinner Weapon
   m_EditorClassIdentifier: 
+  projectileCount: 1
   attackDamage: 10
-  attackSpeed: 1
+  attackSound: {fileID: 0}
+  spinnerSize: 1
+  armRadius: 10
+  spinnerPrefab: {fileID: 4186423169285490997, guid: df7b07a11f77b834fa63f19abe8e08b4, type: 3}

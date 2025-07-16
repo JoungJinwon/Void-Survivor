@@ -110,8 +110,8 @@ Material:
     - _SpecularHighlights: 1
     - _SrcBlend: 1
     - _SrcBlendAlpha: 1
-    - _StarDensity: 20
-    - _StarSize: 0.01
+    - _StarDensity: 40
+    - _StarSize: 0.02
     - _Surface: 0
     - _WorkflowMode: 1
     - _ZWrite: 1

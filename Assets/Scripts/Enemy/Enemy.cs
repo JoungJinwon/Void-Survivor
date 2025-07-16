@@ -134,6 +134,8 @@ public class Enemy : Entity
 
         _player.GainExp(_EnemyData.expReward);
 
+        _Rigidbody.linearVelocity = Vector3.zero;
+
         // 사망 시각적 효과 시작
         StartCoroutine(DeathVisualEffect());
 
@@ -169,7 +171,7 @@ public class Enemy : Entity
             Color originalRimColor = enemyMaterial.GetColor("_RimColor");
             enemyMaterial.SetColor("_RimColor", Color.red);
             
-            // 0.3초 후 원래 상태로 복구
+            // 0.1초 후 원래 상태로 복구
             yield return new WaitForSeconds(0.1f);
             
             enemyMaterial.SetFloat("_DamageAmount", 0.0f);
@@ -185,7 +187,7 @@ public class Enemy : Entity
         // 디졸브 효과로 사망 연출
         if (enemyMaterial != null)
         {
-            float dissolveTime = 2.0f;
+            float dissolveTime = 0.5f;
             float elapsedTime = 0f;
             
             // 발광 효과 증가

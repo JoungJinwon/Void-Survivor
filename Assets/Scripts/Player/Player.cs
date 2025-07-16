@@ -17,7 +17,8 @@ public class Player : Entity
     [SerializeField] private Slider hpBar; // Player의 체력바를 표시할 Slider UI
     [SerializeField] private Slider expBar; // Player의 경험치를 표시할 Slider UI
 
-    private Weapon weapon; // 장착된 Weapon
+    private Weapon _weapon; // 장착된 Weapon
+    private AudioSource _audioSource;
 
     private void Start()
     {
@@ -30,10 +31,10 @@ public class Player : Entity
         // 플레이어 입력 처리 및 이동 로직
 
         // 무기 자동 사용
-        if (weapon != null)
+        if (_weapon != null)
         {
-            weapon.TryAttack(this); // 플레이어 공격 속도 전달
-            Debug.Log($"Player: {weapon} 공격!");
+            _weapon.TryAttack(this); // 플레이어 공격 속도 전달
+            Debug.Log($"Player: {_weapon} 공격!");
         }
         else
         {
@@ -46,17 +47,33 @@ public class Player : Entity
         currentHealth = maxHealth;
         IsAlive = true;
 
-        weapon = GetComponent<WeaponSlot>()?.equippedWeapon;
-        weapon?.InitWeapon();
+        _weapon = GetComponent<WeaponSlot>()?.equippedWeapon;
+        _weapon?.InitWeapon();
+
+        _audioSource = GetComponent<AudioSource>();
+        if (_weapon?.attackSound != null)
+            _audioSource.clip = _weapon.attackSound;
 
         UiManager.Instance.UpdateLevelText(level);
         UiManager.Instance.UpdateExpBar(exp, maxExp);
     }
 
+    public void PlayAttackSound()
+    {
+        if (_audioSource != null && _weapon?.attackSound != null)
+        {
+            _audioSource.PlayOneShot(_weapon.attackSound);
+        }
+        else
+        {
+            Debug.LogWarning("Player: AudioSource or attack sound is not set!");
+        }
+    }
+
     #region Getters
 
     public Player GetPlayer() { return this; }
-    public Weapon GetPlayerWeapon() { return weapon; }
+    public Weapon GetPlayerWeapon() { return _weapon; }
     public float GetPlayerMaxHealth() { return maxHealth; }
     public float GetPlayerAttackDamage() { return attackDamage; }
     public float GetPlayerAttackSpeed() { return attackSpeed; }
