@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e5749200ebbf00b44833e79b719915ec, type: 3}
   m_Name: Spinner Weapon
   m_EditorClassIdentifier: 
-  projectileCount: 1
+  projectileCount: 2
   attackDamage: 10
   attackSound: {fileID: 0}
   spinnerSize: 1
