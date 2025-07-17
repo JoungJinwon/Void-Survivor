@@ -83,6 +83,9 @@ public class PhaseManager : Singleton<PhaseManager>
 
     private void SpawnEnemy(Enemy enemyPrefab, Transform spawnPoint)
     {
+        float spawnOffset = Random.Range(-10f, 10f);
+        spawnPoint.position += new Vector3(spawnOffset, 0, spawnOffset);
+
         if (enemyPrefab == null || spawnPoint == null) return;
         Enemy newEnemy =Instantiate(enemyPrefab, spawnPoint.position, spawnPoint.rotation);
         remainingEnemies.Add(newEnemy);
