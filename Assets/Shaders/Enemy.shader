@@ -11,15 +11,15 @@ Shader "Custom/Enemy"
         _EmissionIntensity ("Emission Intensity", Range(0, 5)) = 1.0
         
         // 펄싱 효과
-        _PulseSpeed ("Pulse Speed", Float) = 1.0
-        _PulseMin ("Pulse Min", Range(0, 1)) = 0.5
+        _PulseSpeed ("Pulse Speed", Float) = 2.0
+        _PulseMin ("Pulse Min", Range(0, 1)) = 0.1
         _PulseMax ("Pulse Max", Range(0, 1)) = 1.0
         
         // 디졸브 효과
         _DissolveTex ("Dissolve Texture", 2D) = "white" {}
         _DissolveAmount ("Dissolve Amount", Range(0, 1)) = 0.0
         _DissolveEdgeWidth ("Dissolve Edge Width", Range(0, 0.1)) = 0.02
-        _DissolveEdgeColor ("Dissolve Edge Color", Color) = (1, 0.5, 0, 1)
+        _DissolveEdgeColor ("Dissolve Edge Color", Color) = (1, 1, 1, 1)
         
         // 왜곡 효과
         _DistortionTex ("Distortion Texture", 2D) = "bump" {}

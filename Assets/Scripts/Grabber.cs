@@ -13,6 +13,7 @@ public class Grabber : MonoBehaviour
 
     [Header("Survival UI")]
     public TextMeshProUGUI phaseText;
+    public TextMeshProUGUI gameTimeText;
     public TextMeshProUGUI levelText;
     public TextMeshProUGUI expBarText;
     public Slider expBar;
@@ -70,6 +71,7 @@ public class Grabber : MonoBehaviour
     public void AllocateSurvivalUi()
     {
         _UM.phaseText = phaseText;
+        _UM.gameTimeText = gameTimeText;
         _UM.levelText = levelText;
         _UM.expBarText = expBarText;
         _UM.expBar = expBar;

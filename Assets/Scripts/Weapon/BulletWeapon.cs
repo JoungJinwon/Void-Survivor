@@ -88,7 +88,7 @@ public class BulletWeapon : Weapon
         Bullet bulletComp = bullet.GetComponent<Bullet>();
         if (bulletComp != null)
         {
-            bulletComp.Init(target - origin, attackIntervalMultiplier, (int)attackDamage);
+            bulletComp.Init(target - origin, bulletSpeed, (int)attackDamage);
         }
     }
 }

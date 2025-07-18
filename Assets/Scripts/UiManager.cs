@@ -25,6 +25,7 @@ public class UiManager : Singleton<UiManager>
 
     [Header("Survival UI")]
     public TextMeshProUGUI phaseText;
+    public TextMeshProUGUI gameTimeText;
     public TextMeshProUGUI levelText;
     public TextMeshProUGUI expBarText;
     public Slider expBar;
@@ -39,6 +40,9 @@ public class UiManager : Singleton<UiManager>
     public GameObject skillSlotPrefab;
 
     public GameManager _GM;
+
+    private Queue<int> pendingLevelUps = new Queue<int>();
+    private bool isProcessingLevelUp = false;
 
     #region Unity Event Methods
     private void Awake()
@@ -182,13 +186,60 @@ public class UiManager : Singleton<UiManager>
     #region Survival UI
     public void UpdatePhaseText(string phaseName)
     {
-
+        phaseText.text = $"{phaseName}";
     }
 
-    public void LevelUpUi(int level)
+    public void UpdateGameTimeText(float gameTime)
     {
-        UpdateLevelText(level);
-        ActivateSkillCanvas();
+        int minutes = Mathf.FloorToInt(gameTime / 60);
+        int seconds = Mathf.FloorToInt(gameTime % 60);
+        gameTimeText.text = $"{minutes:D2}:{seconds:D2}";
+    }
+
+    public void HandleLevelUp(int newLevel)
+    {
+        pendingLevelUps.Enqueue(newLevel);
+        
+        if (!isProcessingLevelUp)
+        {
+            StartCoroutine(ProcessLevelUps());
+        }
+    }
+
+    private IEnumerator ProcessLevelUps()
+    {
+        isProcessingLevelUp = true;
+        
+        // 게임 일시정지 (첫 번째 레벨업에서만)
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.PauseForLevelUp();
+        }
+        
+        while (pendingLevelUps.Count > 0)
+        {
+            int level = pendingLevelUps.Dequeue();
+            
+            UpdateLevelText(level);
+            ActivateSkillCanvas();
+            
+            // 스킬 선택을 기다림
+            yield return new WaitUntil(() => !skillCanvas.gameObject.activeSelf);
+            
+            // 다음 레벨업이 있다면 잠시 대기
+            if (pendingLevelUps.Count > 0)
+            {
+                yield return new WaitForSeconds(0.5f);
+            }
+        }
+        
+        isProcessingLevelUp = false;
+        
+        // 모든 레벨업 처리 완료 후 게임 재개
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.ResumeFromLevelUp();
+        }
     }
 
     public void UpdateLevelText(int level)
@@ -210,15 +261,27 @@ public class UiManager : Singleton<UiManager>
 
         if (skills.Count > 0)
         {
-            for (int i = 0; i < skills.Count; i++)
+            // IndexOutOfRange 에러 방지를 위한 안전 검사
+            int maxIndex = Mathf.Min(skills.Count, skillIcons.Length);
+            
+            for (int i = 0; i < maxIndex; i++)
             {
-                skillIcons[i].sprite = skills[i].icon;
-                skillHeaderTexts[i].text = skills[i].skillName;
-                skillDecriptionTexts[i].text = skills[i].skillDescription;
+                if (i < skillIcons.Length && i < skillHeaderTexts.Length && i < skillDecriptionTexts.Length)
+                {
+                    skillIcons[i].sprite = skills[i].icon;
+                    skillHeaderTexts[i].text = skills[i].skillName;
+                    skillDecriptionTexts[i].text = skills[i].skillDescription;
 
-                Debug.Log($"{i}번째 스킬: {skillHeaderTexts[i].text}");
+                    Debug.Log($"{i}번째 스킬: {skillHeaderTexts[i].text}");
+                }
             }
         }
+    }
+    
+    public void DeactivateSkillCanvas()
+    {
+        skillCanvas.gameObject.SetActive(false);
+        Debug.Log("Skill Canvas Deactivated");
     }
 
     /// <summary>
@@ -228,22 +291,9 @@ public class UiManager : Singleton<UiManager>
     {
         // 스킬 캔버스 비활성화
         DeactivateSkillCanvas();
-        
-        // 게임 재개
-        if (GameManager.Instance != null)
-        {
-            GameManager.Instance.ResumeFromLevelUp();
-        }
-        
-        Debug.Log("Skill selected - Game resumed");
-    }
 
-    /// <summary>
-    /// 스킬 캔버스 비활성화
-    /// </summary>
-    public void DeactivateSkillCanvas()
-    {
-        skillCanvas.gameObject.SetActive(false);
+        // 다음 레벨업이 있는지 확인하고, 없다면 게임 재개는 ProcessLevelUps에서 처리
+        Debug.Log("Skill selected");
     }
 
     public void UpdateEquippedSkillsGrid(Skill skill)
