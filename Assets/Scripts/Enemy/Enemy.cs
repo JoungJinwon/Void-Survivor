@@ -9,7 +9,7 @@ public class Enemy : Entity
     private float _maxHealth;
     private float _currentHealth;
     private float _attackDamage;
-    private float _attackSpeed;
+    private float _attackCoolTime;
     private float _lastAttackTime;
 
     private HealthBar hpBar;
@@ -19,6 +19,10 @@ public class Enemy : Entity
     protected IEnemyBehavior behavior;
 
     public Rigidbody _Rigidbody { get; private set; }
+
+    // 공용 접근자 추가
+    public float CurrentHealth { get { return _currentHealth; } set { _currentHealth = value; } }
+    public IEnemyBehavior Behavior { get { return behavior; } set { behavior = value; } }
 
     // 시각적 효과를 위한 변수들
     [Header("Visual Effects")]
@@ -54,6 +58,8 @@ public class Enemy : Entity
             EnemyType.Charger => new ChargerBehaviour(),
             EnemyType.Shooter => new ShooterBehaviour(),
             EnemyType.Turret => new TurretBehaviour(),
+            EnemyType.Splitter => new SplitterBehaviour(),
+            EnemyType.Bomber => new ChargerBehaviour(), // Bomber는 일단 Charger처럼 행동
             _ => new ChargerBehaviour()
         };
     }
@@ -75,7 +81,7 @@ public class Enemy : Entity
 
         _maxHealth = _EnemyData.maxHealth;
         _attackDamage = _EnemyData.attackDamage;
-        _attackSpeed = _EnemyData.attackSpeed;
+        _attackCoolTime = _EnemyData.attackCoolTime;
         _currentHealth = _maxHealth;
 
         // 머티리얼 복사 (인스턴스 생성)
@@ -113,7 +119,7 @@ public class Enemy : Entity
 
     public void Attack(IEntity target)
     {
-        if (Time.time - _lastAttackTime < _attackSpeed) return;
+        if (Time.time - _lastAttackTime < _attackCoolTime) return;
 
         if (target is Player player)
         {
@@ -125,6 +131,13 @@ public class Enemy : Entity
     protected override void Die()
     {
         if (isDying) return;
+        
+        // Splitter 타입인 경우 분열 처리
+        if (_EnemyData.enemyType == EnemyType.Splitter && behavior is SplitterBehaviour splitterBehaviour)
+        {
+            splitterBehaviour.HandleSplitting(this);
+        }
+        
         isDying = true;
 
         IsAlive = false;

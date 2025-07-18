@@ -26,14 +26,12 @@ public class SkillManager : Singleton<SkillManager>
 
     private void Start()
     {
-        // foreach (var skill in skillDatabase)
-        // {
-        //     skill.Activate();
-        // }
     }
 
     private void Update()
     {
+        if (GameManager.Instance.IsGamePaused) return;
+        
         // 등록된 모든 업데이트 델리게이트 호출
         for (int i = 0; i < updateActions.Count; i++)
         {

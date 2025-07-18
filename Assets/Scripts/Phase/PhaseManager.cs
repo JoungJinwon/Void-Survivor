@@ -104,6 +104,14 @@ public class PhaseManager : Singleton<PhaseManager>
         }
     }
 
+    public void RegisterEnemy(Enemy enemy)
+    {
+        if (enemy == null) return;
+
+        remainingEnemies.Add(enemy);
+        enemyCount++;
+    }
+
     public List<Enemy> GetRemainingEnemies()
     {
         return remainingEnemies;
@@ -131,6 +139,8 @@ public class PhaseManager : Singleton<PhaseManager>
         currentSpawnInfos = currentPhaseData.spawnInfos;
         spawnTimeIndex = 0;
         IsPhaseActive = true;
+
+        UiManager.Instance.UpdatePhaseText(currentPhaseData.phaseName);
     }
 
     public void DecreaseEnemyCount()

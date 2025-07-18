@@ -105,7 +105,9 @@ public class Player : Entity
         if (level == maxLevel) return;
 
         exp += amount;
-        if (exp >= maxExp)
+        
+        // Handle multiple level ups sequentially
+        while (exp >= maxExp && level < maxLevel)
         {
             exp -= maxExp;
             LevelUp();
@@ -126,13 +128,11 @@ public class Player : Entity
             IncreaseAttackSpeed(1.1f); // 레벨업 시 공격 속도 증가
             maxExp = level * 100f;
 
-            // 게임 일시정지 (스킬 선택을 위해)
-            if (GameManager.Instance != null)
+            // 게임 일시정지 및 UI 업데이트를 UiManager에서 처리
+            if (UiManager.Instance != null)
             {
-                GameManager.Instance.PauseForLevelUp();
+                UiManager.Instance.HandleLevelUp(level);
             }
-
-            UiManager.Instance.LevelUpUi(level);
         }
     }
 
@@ -153,14 +153,47 @@ public class Player : Entity
         attackDamage += amount;
     }
 
+    public void DecreaseAttack(float amount)
+    {
+        attackDamage = Mathf.Max(10, attackDamage - amount);
+    }
+
     public void IncreaseAttackSpeed(float amount)
     {
         attackSpeed *= amount;
     }
 
+    public void DecreaseAttackSpeed(float amount)
+    {
+        attackSpeed = Mathf.Max(1f, attackSpeed / amount);
+    }
+
     public void IncreaseMoveSpeed(float amount)
     {
         moveSpeed *= amount;
+    }
+
+    public void DecreaseMoveSpeed(float amount)
+    {
+        moveSpeed = Mathf.Max(1f, moveSpeed / amount);
+    }
+
+    public void Accelerate(float attackBoost, float attackSpeedBoost, float moveSpeedBoost)
+    {
+        IncreaseAttack(attackBoost);
+        IncreaseAttackSpeed(attackSpeedBoost);
+        IncreaseMoveSpeed(moveSpeedBoost);
+
+        Debug.Log($"Player: (공격력/공격 속도/이동 속도) = {attackDamage}/{attackSpeed}/{moveSpeed}");
+    }
+
+    public void Decelerate(float attackBoost, float attackSpeedBoost, float moveSpeedBoost)
+    {
+        DecreaseAttack(attackBoost);
+        DecreaseAttackSpeed(attackSpeedBoost);
+        DecreaseMoveSpeed(moveSpeedBoost);
+
+        Debug.Log($"Player: (공격력/공격 속도/이동 속도) = {attackDamage}/{attackSpeed}/{moveSpeed}");
     }
 
     #endregion
