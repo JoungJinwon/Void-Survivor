@@ -4,7 +4,7 @@ using UnityEngine;
 public class IncreaseHealthAttackSkill : Skill
 {
     public float healthIncreaseAmount;
-    public float attackIncreaseAmount;
+    public int attackIncreaseAmount;
 
     public override void Activate()
     {

@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Spinner Weapon
   m_EditorClassIdentifier: 
   projectileCount: 2
-  attackDamage: 10
+  weaponDamage: 0
   attackSound: {fileID: 0}
   spinnerSize: 1
   armRadius: 10

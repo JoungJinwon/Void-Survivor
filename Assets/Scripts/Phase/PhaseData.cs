@@ -14,6 +14,9 @@ public class PhaseData : ScriptableObject
         public List<EnemySpawn> enemies; // 해당 시간에 스폰할 적 리스트
     }
 
+    /// <summary>
+    /// 각 스폰 타임별로 스폰할 적 프리팹과 수를 저장하는 클래스
+    /// </summary>
     [Serializable]
     public class EnemySpawn
     {

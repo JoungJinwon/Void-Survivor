@@ -23,7 +23,7 @@ public class BulletWeapon : Weapon
         else
         {
             weaponLevel++;
-            attackDamage += 5f;
+            weaponDamage += 5;
             attackIntervalMultiplier *= 1.2f;
         }
     }
@@ -40,7 +40,7 @@ public class BulletWeapon : Weapon
         if (effectiveAttackTime < cooldownTime) return;
 
         // Find nearest enemy in range
-        Enemy nearestEnemy = null;
+        player.targetEnemy = null;
         float minDist = float.MaxValue;
         foreach (Enemy enemy in FindObjectsByType<Enemy>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
         {
@@ -48,14 +48,14 @@ public class BulletWeapon : Weapon
             if (dist < minDist && enemy.IsAlive)
             {
                 minDist = dist;
-                nearestEnemy = enemy;
+                player.targetEnemy = enemy;
             }
         }
 
-        if (nearestEnemy != null)
+        if (player.targetEnemy != null)
         {
             // 다중 발사체 생성
-            Vector3 directionToEnemy = (nearestEnemy.transform.position - player.transform.position).normalized;
+            Vector3 directionToEnemy = (player.targetEnemy.transform.position - player.transform.position).normalized;
             
             for (int i = 0; i < projectileCount; i++)
             {
@@ -65,14 +65,14 @@ public class BulletWeapon : Weapon
                 Vector3 startPosition = player.transform.position + rightVector * offset;
                 
                 // 모든 총알이 동일한 방향으로 발사
-                FireBullet(startPosition, player.transform.position + directionToEnemy * 100f, weaponSpeed);
+                FireBullet(startPosition, player.transform.position + directionToEnemy * 100f, weaponSpeed, player.GetPlayerAttackDamage());
             }
             
             lastAttackTime = Time.time;
 
             player.PlayAttackSound();
 
-            Debug.Log($"Bullet Weapon: Fire {projectileCount} bullets to {nearestEnemy}!");
+            Debug.Log($"Bullet Weapon: Fire {projectileCount} bullets to {player.targetEnemy}!");
         }
         else
         {
@@ -80,7 +80,7 @@ public class BulletWeapon : Weapon
         }
     }
 
-    private void FireBullet(Vector3 origin, Vector3 target, float bulletSpeed)
+    private void FireBullet(Vector3 origin, Vector3 target, float bulletSpeed, int playerDamage)
     {
         if (bulletPrefab == null) return;
 
@@ -88,7 +88,7 @@ public class BulletWeapon : Weapon
         Bullet bulletComp = bullet.GetComponent<Bullet>();
         if (bulletComp != null)
         {
-            bulletComp.Init(target - origin, bulletSpeed, (int)attackDamage);
+            bulletComp.Init(target - origin, bulletSpeed, weaponDamage + playerDamage);
         }
     }
 }

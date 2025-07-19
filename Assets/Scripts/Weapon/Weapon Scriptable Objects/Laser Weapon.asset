@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Laser Weapon
   m_EditorClassIdentifier: 
   projectileCount: 1
-  attackDamage: 10
+  weaponDamage: 5
   attackSound: {fileID: 8300000, guid: 27cb053f4c88c5b419d5a5f5ea9cd7c9, type: 3}
   laserWidth: 1
   laserRange: 100

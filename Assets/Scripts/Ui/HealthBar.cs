@@ -40,7 +40,6 @@ public class HealthBar : MonoBehaviour
 
         if (target != null)
         {
-            Debug.Log($"Updating health bar for {target.name}");
             Vector3 screenPos = cam.WorldToScreenPoint(target.position);
             RectTransform canvasRect = transform.parent as RectTransform;
             Vector2 localPoint;

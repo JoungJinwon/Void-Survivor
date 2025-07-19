@@ -4,7 +4,7 @@ using UnityEngine.UI;
 public class Player : Entity
 {
     [SerializeField] private float maxHealth = 100f;
-    [SerializeField] private float attackDamage = 10f;
+    [SerializeField] private int attackDamage = 10;
     [SerializeField] private float attackSpeed = 1f;
     [SerializeField] private float moveSpeed = 1f;
 
@@ -19,6 +19,8 @@ public class Player : Entity
 
     private Weapon _weapon; // 장착된 Weapon
     private AudioSource _audioSource;
+
+    public Enemy targetEnemy;
 
     private void Start()
     {
@@ -75,7 +77,7 @@ public class Player : Entity
     public Player GetPlayer() { return this; }
     public Weapon GetPlayerWeapon() { return _weapon; }
     public float GetPlayerMaxHealth() { return maxHealth; }
-    public float GetPlayerAttackDamage() { return attackDamage; }
+    public int GetPlayerAttackDamage() { return attackDamage; }
     public float GetPlayerAttackSpeed() { return attackSpeed; }
     public float GetPlayerMoveSpeed() { return moveSpeed; }
 
@@ -124,7 +126,7 @@ public class Player : Entity
             currentHealth = maxHealth; // 레벨업 시 체력 회복
 
             IncreaseHealth(20f);
-            IncreaseAttack(2f); // 레벨업 시 공격력 증가
+            IncreaseAttack(2); // 레벨업 시 공격력 증가
             IncreaseAttackSpeed(1.1f); // 레벨업 시 공격 속도 증가
             maxExp = level * 100f;
 
@@ -148,12 +150,12 @@ public class Player : Entity
         Debug.Log($"Player: (최대 체력/현재 체력) = {maxHealth}/{currentHealth}");
     }
 
-    public void IncreaseAttack(float amount)
+    public void IncreaseAttack(int amount)
     {
         attackDamage += amount;
     }
 
-    public void DecreaseAttack(float amount)
+    public void DecreaseAttack(int amount)
     {
         attackDamage = Mathf.Max(10, attackDamage - amount);
     }
@@ -178,7 +180,7 @@ public class Player : Entity
         moveSpeed = Mathf.Max(1f, moveSpeed / amount);
     }
 
-    public void Accelerate(float attackBoost, float attackSpeedBoost, float moveSpeedBoost)
+    public void Accelerate(int attackBoost, float attackSpeedBoost, float moveSpeedBoost)
     {
         IncreaseAttack(attackBoost);
         IncreaseAttackSpeed(attackSpeedBoost);
@@ -187,7 +189,7 @@ public class Player : Entity
         Debug.Log($"Player: (공격력/공격 속도/이동 속도) = {attackDamage}/{attackSpeed}/{moveSpeed}");
     }
 
-    public void Decelerate(float attackBoost, float attackSpeedBoost, float moveSpeedBoost)
+    public void Decelerate(int attackBoost, float attackSpeedBoost, float moveSpeedBoost)
     {
         DecreaseAttack(attackBoost);
         DecreaseAttackSpeed(attackSpeedBoost);

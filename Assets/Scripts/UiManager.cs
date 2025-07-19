@@ -39,6 +39,9 @@ public class UiManager : Singleton<UiManager>
     public GameObject equippedSkillGrid;
     public GameObject skillSlotPrefab;
 
+    public TextMeshProUGUI playerStatsText;
+
+
     public GameManager _GM;
 
     private Queue<int> pendingLevelUps = new Queue<int>();
@@ -76,6 +79,9 @@ public class UiManager : Singleton<UiManager>
             case SceneData.CurrentScene.PlayerSetting:
                 break;
             case SceneData.CurrentScene.Survival:
+                if (_GM != null)
+                    UpdateGameTimeText(_GM.GameTime);
+                UpdatePlayerStatsText();
                 break;
             default:
                 Debug.LogError($"UI Manager: {_GM.currentScene} is Invalid Scene");
@@ -195,11 +201,26 @@ public class UiManager : Singleton<UiManager>
         int seconds = Mathf.FloorToInt(gameTime % 60);
         gameTimeText.text = $"{minutes:D2}:{seconds:D2}";
     }
+    
+    public void UpdatePlayerStatsText()
+    {
+        if (playerStatsText != null)
+        {
+            playerStatsText.text = $"Attack: {_GM._Player.GetPlayerAttackDamage()}\n" +
+                                   $"Attack Speed: {_GM._Player.GetPlayerAttackSpeed()}\n" +
+                                   $"Move Speed: {_GM._Player.GetPlayerMoveSpeed()}\n" +
+                                   $"Weapon: {_GM._Player.GetPlayerWeapon()?.name ?? "None"}";
+        }
+        else
+        {
+            Debug.LogWarning("Player Stats Text is not assigned in UiManager.");
+        }
+    }
 
     public void HandleLevelUp(int newLevel)
     {
         pendingLevelUps.Enqueue(newLevel);
-        
+
         if (!isProcessingLevelUp)
         {
             StartCoroutine(ProcessLevelUps());

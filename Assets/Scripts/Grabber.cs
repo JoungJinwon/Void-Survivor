@@ -26,6 +26,8 @@ public class Grabber : MonoBehaviour
     public GameObject pausePanel;
     public GameObject equippedSkillGrid;
 
+    public TextMeshProUGUI playerStatsText;
+
     private void Awake()
     {
         InitGrabber();
@@ -81,6 +83,8 @@ public class Grabber : MonoBehaviour
         _UM.skillDecriptionTexts = skillDecriptionTexts;
         _UM.pausePanel = pausePanel;
         _UM.equippedSkillGrid = equippedSkillGrid;
+
+        _UM.playerStatsText = playerStatsText;
     }
 
     public void ActiveWindowSlide()

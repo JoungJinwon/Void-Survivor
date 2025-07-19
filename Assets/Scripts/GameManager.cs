@@ -32,9 +32,6 @@ public class GameManager : Singleton<GameManager>
         {
             GameTime += Time.deltaTime;
 
-            if (_UM != null)
-                _UM.UpdateGameTimeText(GameTime);
-
             if (_PM != null)
                 _PM.UpdatePhase(GameTime);
         }

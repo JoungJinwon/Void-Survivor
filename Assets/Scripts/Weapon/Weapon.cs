@@ -8,7 +8,7 @@ public abstract class Weapon : ScriptableObject
 
     public int projectileCount = 1;
 
-    [SerializeField] protected float attackDamage = 10f;
+    [SerializeField] protected int weaponDamage = 0;
     // 공격 속도 조정을 위한 변수. 커질수록 공격 속도가 빨라짐
     protected float attackIntervalMultiplier = 1f;
     protected float lastAttackTime;

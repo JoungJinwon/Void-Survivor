@@ -1,4 +1,4 @@
-Shader "Custom/Enemy"
+Shader "Custom/Entity"
 {
     Properties
     {

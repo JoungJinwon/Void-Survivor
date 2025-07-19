@@ -69,6 +69,8 @@ public class Enemy : Entity
         if (!IsAlive || GameManager.Instance.IsGamePaused) return;
 
         directionToPlayer = (_Player.transform.position - transform.position).normalized;
+
+        behavior?.Execute(this, directionToPlayer);
         
         // 체력에 따른 시각적 업데이트
         UpdateHealthVisuals();
@@ -153,8 +155,6 @@ public class Enemy : Entity
         StartCoroutine(DeathVisualEffect());
 
         PhaseManager.Instance.DecreaseEnemyCount();
-
-        // 추가적인 사망 처리 (파티클 효과, 사운드 등)
     }
 
     private void OnTriggerStay(Collider other)

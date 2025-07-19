@@ -6,18 +6,13 @@ using UnityEngine;
 public class SpinnerWeapon : Weapon
 {
     private Transform spinnerOrigin;
-
+    
     [SerializeField] private float spinnerSize = 2f;
     [SerializeField] private float armRadius = 10f;
 
     private List<GameObject> equippedSpinners;
 
     [SerializeField] private GameObject spinnerPrefab;
-
-    private void Start()
-    {
-        InitWeapon();
-    }
 
     public override void InitWeapon()
     {
@@ -37,15 +32,13 @@ public class SpinnerWeapon : Weapon
         }
 
         projectileCount = 2;
-        attackIntervalMultiplier = 0.2f;
+        attackIntervalMultiplier = 0.4f;
 
         CreateSpinners();
     }
 
     public override void UpgradeWeapon()
     {
-        InitWeapon();
-        
         if (weaponLevel >= maxWeaponLevel)
         {
             Debug.LogWarning($"{this} Weapon is already at MAXIMUM level!");
@@ -56,7 +49,7 @@ public class SpinnerWeapon : Weapon
             weaponLevel++;
             spinnerSize *= 1.3f;
             armRadius *= 1.2f;
-            attackDamage += 5f;
+            weaponDamage += 5;
             attackIntervalMultiplier *= 1.2f;
             IncreaseProjectileCount();
         }
@@ -94,7 +87,7 @@ public class SpinnerWeapon : Weapon
             newSpinner.transform.localPosition = localPosition;
             newSpinner.transform.localScale *= spinnerSize; // 스피너 크기 조정
             equippedSpinners.Add(newSpinner);
-            newSpinner.GetComponent<Spinner>().Init((int)attackDamage);
+            newSpinner.GetComponent<Spinner>().Init((int)weaponDamage);
         }
     }
 

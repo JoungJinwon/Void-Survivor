@@ -27,9 +27,9 @@ public class LaserWeapon : Weapon
         {
             weaponLevel++;
             // 레이저 무기 업그레이드 로직 (예: 공격력 증가, 사거리 증가 등)
-            attackDamage += 5f;
+            weaponDamage += 5;
             laserWidth *= 1.2f;
-            Debug.Log($"Laser Weapon upgraded: Damage = {attackDamage}, Range = {laserRange}");
+            Debug.Log($"Laser Weapon upgraded: Damage = {weaponDamage}, Range = {laserRange}");
         }
     }
 
@@ -45,7 +45,7 @@ public class LaserWeapon : Weapon
         if (effectiveAttackTime < cooldownTime) return;
 
         // Find nearest enemy in range
-        Enemy nearestEnemy = null;
+        player.targetEnemy = null;
         float minDist = float.MaxValue;
         foreach (Enemy enemy in FindObjectsByType<Enemy>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
         {
@@ -53,14 +53,14 @@ public class LaserWeapon : Weapon
             if (dist < minDist && enemy.IsAlive)
             {
                 minDist = dist;
-                nearestEnemy = enemy;
+                player.targetEnemy = enemy;
             }
         }
 
-        if (nearestEnemy != null)
+        if (player.targetEnemy != null)
         {
             Vector3 origin = player.transform.position;
-            Vector3 directionToEnemy = (nearestEnemy.transform.position - origin).normalized;
+            Vector3 directionToEnemy = (player.targetEnemy.transform.position - origin).normalized;
 
             // 다중 레이저 발사
             for (int i = 0; i < projectileCount; i++)
@@ -80,7 +80,7 @@ public class LaserWeapon : Weapon
                     Enemy enemy = hit.collider.GetComponent<Enemy>();
                     if (enemy != null && enemy.IsAlive)
                     {
-                        enemy.TakeDamage(attackDamage);
+                        enemy.TakeDamage(weaponDamage);
                     }
                 }
 

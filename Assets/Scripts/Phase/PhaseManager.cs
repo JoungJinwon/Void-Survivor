@@ -11,8 +11,9 @@ public class PhaseManager : Singleton<PhaseManager>
     private bool IsPhaseActive = false;
 
     private int phaseIndex = 0;
-    private int spawnTimeIndex = 0;
+    private int spawnInfoIndex = 0;
 
+    // Phase가 시작된 시점의 Game Time
     private float currentPhaseStartTime;
 
     // 총 8방향의 Enemy Spawners
@@ -27,7 +28,7 @@ public class PhaseManager : Singleton<PhaseManager>
     private List<Enemy> remainingEnemies = new List<Enemy>();
 
     // 현재 Phase의 스폰 정보
-    private List<PhaseData.SpawnInfo> currentSpawnInfos;
+    private List<PhaseData.SpawnInfo> currentPhaseSpawnInfos;
 
     private void Awake()
     {
@@ -61,33 +62,37 @@ public class PhaseManager : Singleton<PhaseManager>
     {
         if (!IsPhaseActive || currentPhaseData == null || GameManager.Instance.IsGamePaused) return;
 
-        // 모든 스폰 타임을 처리했는지 확인
-        if (spawnTimeIndex >= currentSpawnInfos.Count)
+        if (spawnInfoIndex < currentPhaseSpawnInfos.Count)
         {
-            // 남아있는 적이 없으면 다음 Phase로
-            if (enemyCount == 0)
+            var spawnInfo = currentPhaseSpawnInfos[spawnInfoIndex];
+
+            // 스폰 시간이 되었는지 확인
+            if (gameTime >= currentPhaseStartTime + spawnInfo.spawnTime)
             {
-                SetPhase(phaseIndex + 1);
+                SpawnEnemies(spawnInfo.enemies);
+                spawnInfoIndex++;
             }
+            else if (enemyCount == 0)
+            {
+                float remainingTime = (currentPhaseStartTime + spawnInfo.spawnTime) - gameTime;
+                currentPhaseStartTime += remainingTime;
 
-            return;
+                SpawnEnemies(spawnInfo.enemies);
+                spawnInfoIndex++;
+            }
         }
-
-        var spawnInfo = currentSpawnInfos[spawnTimeIndex];
-        if (gameTime >= currentPhaseStartTime + spawnInfo.spawnTime)
+        else if (enemyCount == 0)
         {
-            SpawnEnemies(spawnInfo.enemies);
-            spawnTimeIndex++;
+            SetPhase(phaseIndex + 1);
         }
     }
 
     private void SpawnEnemy(Enemy enemyPrefab, Transform spawnPoint)
     {
-        float spawnOffset = Random.Range(-10f, 10f);
-        spawnPoint.position += new Vector3(spawnOffset, 0, spawnOffset);
+        float spawnOffset = Random.Range(-15f, 15f);
+        Vector3 newSpawnPoint = spawnPoint.position + new Vector3(spawnOffset, 0, spawnOffset);
 
-        if (enemyPrefab == null || spawnPoint == null) return;
-        Enemy newEnemy =Instantiate(enemyPrefab, spawnPoint.position, spawnPoint.rotation);
+        Enemy newEnemy = Instantiate(enemyPrefab, newSpawnPoint, spawnPoint.rotation);
         remainingEnemies.Add(newEnemy);
         enemyCount++;
     }
@@ -104,6 +109,7 @@ public class PhaseManager : Singleton<PhaseManager>
         }
     }
 
+    // 외부에서 enemy를 등록하는 함수
     public void RegisterEnemy(Enemy enemy)
     {
         if (enemy == null) return;
@@ -136,8 +142,8 @@ public class PhaseManager : Singleton<PhaseManager>
         }
 
         currentPhaseStartTime = GameManager.Instance.GameTime;
-        currentSpawnInfos = currentPhaseData.spawnInfos;
-        spawnTimeIndex = 0;
+        currentPhaseSpawnInfos = currentPhaseData.spawnInfos;
+        spawnInfoIndex = 0;
         IsPhaseActive = true;
 
         UiManager.Instance.UpdatePhaseText(currentPhaseData.phaseName);

@@ -3,7 +3,7 @@ using UnityEngine;
 [CreateAssetMenu(menuName = "My Scriptable Objects/Skills/Passive/IncreaseAttackSkill")]
 public class IncreaseAttackSkill : Skill
 {
-    public float attackIncreaseAmount = 5f;
+    public int attackIncreaseAmount = 5;
 
     public override void Activate()
     {
