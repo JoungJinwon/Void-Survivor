@@ -3,13 +3,13 @@ using UnityEngine;
 
 public class SplitterBehaviour : IEnemyBehavior
 {
-    public bool hasSplit = false;
+    public bool hasSplit = false; // 부모 Splitter가 분열했는지 구분하는 플래그
     public bool isSplitChild = false; // 분열체인지 구분하는 플래그
     private float initialVelocityTime = 0f;
-    private bool hasStoppedInitialVelocity = false; // 초기 속도 정지 여부 플래그
-    private const float INITIAL_VELOCITY_DURATION = 0.3f; // 초기 속도 지속 시간
+    private bool hasStoppedInitialVelocity = false; // 분열 속도 정지 여부 플래그
+    private const float INITIAL_VELOCITY_DURATION = 0.3f; // 분열 속도 지속 시간
 
-    private const float splitVelocity = 3f;
+    private const float splitVelocity = 5f;
     public Vector3 splitDirection;
 
     Rigidbody _rigidbody;
@@ -24,7 +24,7 @@ public class SplitterBehaviour : IEnemyBehavior
         if (isSplitChild)
         {
             hasSplit = true; // 분열체는 더 이상 분열할 수 없음
-            initialVelocityTime = 0f; // 초기 속도 시간 리셋
+            initialVelocityTime = 0f; // 분열 속도 시간 리셋
             hasStoppedInitialVelocity = false; // 초기 속도 정지 플래그 리셋
         }
     }
@@ -34,37 +34,37 @@ public class SplitterBehaviour : IEnemyBehavior
         _rigidbody = enemy._Rigidbody;
 
         // 게임이 일시정지되어 속도가 0인 경우
-        if (_rigidbody.linearVelocity == Vector3.zero && !hasStoppedInitialVelocity)
+        if (isSplitChild && _rigidbody.linearVelocity == Vector3.zero && !hasStoppedInitialVelocity)
         {
-            // 초기 속도 시간이 시작되지 않았다면 초기 속도 시간 시작
+            // 분열 속도 시간이 시작되지 않았다면 분열 속도 시간 시작
             if (isSplitChild && initialVelocityTime == 0f)
             {
-                _rigidbody.linearVelocity = splitDirection * splitVelocity; // 초기 속도 설정
+                _rigidbody.linearVelocity = splitDirection * splitVelocity; // 분열 속도 설정
                 Debug.Log($"Splitter: 초기 속도 시간 시작 ({_rigidbody.linearVelocity})");
             }
         }
 
-        // 분열체의 초기 속도 시간이 지나지 않았다면 초기 속도만 유지
+        // 분열체의 분열 속도 시간이 지나지 않았다면 분열 속도만 유지
         if (isSplitChild && initialVelocityTime < INITIAL_VELOCITY_DURATION)
         {
             initialVelocityTime += Time.deltaTime;
-            // 초기 속도가 끝나갈 때쯤 속도를 서서히 줄임
+            // 분열 속도가 끝나갈 때쯤 속도를 서서히 줄임
             if (initialVelocityTime >= INITIAL_VELOCITY_DURATION * 0.8f)
             {
                 float fadeRatio = 1f - ((initialVelocityTime - INITIAL_VELOCITY_DURATION * 0.8f) / (INITIAL_VELOCITY_DURATION * 0.2f));
                 _rigidbody.linearVelocity = _rigidbody.linearVelocity * fadeRatio;
             }
-            return; // 초기 속도가 적용된 상태에서는 추가 이동 명령을 주지 않음
+            return; // 분열 속도가 적용된 상태에서는 추가 이동 명령을 주지 않음
         }
 
-        // 분열체의 초기 속도를 한 번만 제거 (플레이어 추적 시작 전)
+        // 분열체의 분열 속도를 한 번만 제거 (플레이어 추적 시작 전)
         if (isSplitChild && !hasStoppedInitialVelocity && initialVelocityTime >= INITIAL_VELOCITY_DURATION)
         {
             _rigidbody.linearVelocity = Vector3.zero;
             hasStoppedInitialVelocity = true;
         }
 
-        // 초기 속도 시간이 지났거나 원본 적이라면 정상적으로 플레이어 추적
+        // 분열 속도 시간이 지났거나 원본 적이라면 정상적으로 플레이어 추적
         _rigidbody.MovePosition(_rigidbody.position + directionToPlayer * enemy._EnemyData.moveSpeed * Time.deltaTime);
     }
 
