@@ -4,40 +4,44 @@ public class Bullet : MonoBehaviour
 {
     private const int DefaultBulletSpeed = 40;
     private const float MaxBulletSpeed = 100f; // 최대 속도 제한
-    private Vector3 moveDirection;
-    private float moveSpeed;
-    private int damage;
+    private const float BulletLifeTime = 7f;
+
+    private int bulletDamage;
+    private float bulletSpeed;
+    private float remainingLifeTime = BulletLifeTime;
+
     private Vector3 previousPosition;
-    private float lifeTime = 5f;
-    private float currentLifeTime = 0f;
+    private Vector3 bulletDirection;
 
     public void Init(Vector3 direction, float speed, int damage)
     {
-        moveDirection = direction.normalized;
-        // 속도 제한 적용
+        bulletDirection = direction.normalized;
         float calculatedSpeed = speed * DefaultBulletSpeed;
-        moveSpeed = Mathf.Min(calculatedSpeed, MaxBulletSpeed);
-        this.damage = damage;
-        
-        // 이전 위치 초기화
+        bulletSpeed = Mathf.Min(calculatedSpeed, MaxBulletSpeed);
+        bulletDamage = damage;
         previousPosition = transform.position;
     }
 
-    void Update()
+    private void Update()
     {
-        // 생명 시간 체크
-        currentLifeTime += Time.deltaTime;
-        if (currentLifeTime >= lifeTime)
+        if (GameManager.Instance.IsGamePaused)
+            return;
+
+        remainingLifeTime -= Time.deltaTime;
+        if (remainingLifeTime <= 0f)
         {
             Destroy(gameObject);
             return;
         }
 
-        // 이동 전 위치 저장
         previousPosition = transform.position;
-        
-        // 총알 이동
-        Vector3 moveDistance = moveDirection * moveSpeed * Time.deltaTime;
+        MoveBullet();
+    }
+
+    private void MoveBullet()
+    {
+        // 다음 포지션 계산
+        Vector3 moveDistance = bulletDirection * bulletSpeed * Time.deltaTime;
         Vector3 newPosition = transform.position + moveDistance;
         
         // Raycast로 연속 충돌 감지
@@ -58,18 +62,18 @@ public class Bullet : MonoBehaviour
     private bool CheckCollisionWithRaycast(float moveDistance)
     {
         // 현재 위치에서 이동 방향으로 레이캐스트
-        RaycastHit[] hits = Physics.RaycastAll(previousPosition, moveDirection, moveDistance);
-        
+        RaycastHit[] hits = Physics.RaycastAll(previousPosition, bulletDirection, moveDistance);
+
         // 가장 가까운 충돌 지점 찾기
         RaycastHit closestHit = default;
         float closestDistance = float.MaxValue;
         bool hasValidHit = false;
-        
+
         foreach (var hit in hits)
         {
             // 자기 자신과의 충돌은 무시
             if (hit.collider.gameObject == gameObject) continue;
-            
+
             if (hit.distance < closestDistance)
             {
                 closestDistance = hit.distance;
@@ -77,18 +81,18 @@ public class Bullet : MonoBehaviour
                 hasValidHit = true;
             }
         }
-        
+
         // 충돌이 있다면 처리
         if (hasValidHit)
         {
             // 충돌 지점으로 총알 위치 이동
             transform.position = closestHit.point;
-            
+
             // 충돌 처리
             HandleCollision(closestHit.collider);
             return true;
         }
-        
+
         return false;
     }
 
@@ -103,7 +107,7 @@ public class Bullet : MonoBehaviour
         {
             if (enemy.IsAlive)
             {
-                enemy.TakeDamage(damage);
+                enemy.TakeDamage(bulletDamage);
             }
             Destroy(gameObject);
         }
