@@ -94,8 +94,6 @@ public class LaserWeapon : Weapon
             lastAttackTime = Time.time;
 
             player.PlayAttackSound();
-
-            Debug.Log($"Laser attack with {projectileCount} lasers!");
         }
         else
         {

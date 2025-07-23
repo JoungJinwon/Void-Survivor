@@ -3,30 +3,37 @@ using UnityEngine;
 [CreateAssetMenu(menuName = "My Scriptable Objects/Skills/Active/AccelerationZoneSkill")]
 public class AccelerationZoneSkill : Skill
 {
-    private const int randomPosOffset = 15;
-    public int attackBoost = 10;
-    public float attackSpeedBoost = 1.3f;
-    public float moveSpeedBoost = 1.3f;
+    private const int randomPosOffset = 30;
 
-    public float zoneRadius = 20f;
-    public float zoneDuration = 6f;
+    private float timer;
+
+    public float attackSpeedBoost;
+    public float moveSpeedBoost;
+
+    public float zoneRadius;
+    public float zoneDuration;
 
     public GameObject accelerationZonePrefab;
 
-    private float timer;
+    // 초기값 저장을 위한 변수들
+    [HideInInspector] public float initialAttackSpeedBoost;
+    [HideInInspector] public float initialMoveSpeedBoost;
+    [HideInInspector] public float initialZoneRadius;
+    [HideInInspector] public float initialZoneDuration;
 
     public override void Activate()
     {
         base.Activate();
 
-        cooldownTime = 7f;
+        cooldownTime = 10f; // 활성화 시 쿨다운 설정
         timer = 0f;
+        
         SkillManager.Instance.RegisterUpdate(UpdateSkill);
 
         InstantiateAccelerationZone();
     }
 
-    void UpdateSkill()
+    private void UpdateSkill()
     {
         timer += Time.deltaTime;
         if (timer >= cooldownTime)
@@ -38,16 +45,13 @@ public class AccelerationZoneSkill : Skill
 
     public override void Upgrade()
     {
-        if (skillLevel >= maxLevel) return;
+        base.Upgrade();
 
-        skillLevel++;
-
-        attackBoost += 5;
-        attackSpeedBoost += 0.1f;
-        moveSpeedBoost += 0.1f;
-        zoneRadius += 1f;
-        zoneDuration += 2f;
-        cooldownTime = Mathf.Max(1f, cooldownTime - 0.5f);
+        attackSpeedBoost += 0.05f;
+        moveSpeedBoost += 0.05f;
+        zoneRadius += 2f;
+        zoneDuration += 1f;
+        cooldownTime -= 0.5f;
     }
 
     private void InstantiateAccelerationZone()
@@ -55,6 +59,32 @@ public class AccelerationZoneSkill : Skill
         Vector3 randomPos = GameManager.Instance._Player.transform.position + (Vector3)(Random.insideUnitCircle * randomPosOffset);
         randomPos.y = 5f; // y축은 5 고정
         GameObject zone = Instantiate(accelerationZonePrefab, randomPos, Quaternion.identity);
-        zone.GetComponent<AccelerationZone>().Init(zoneRadius, zoneDuration, attackBoost, attackSpeedBoost, moveSpeedBoost);
+        zone.GetComponent<AccelerationZone>().Init(zoneRadius, zoneDuration, attackSpeedBoost, moveSpeedBoost);
+    }
+    
+        
+    public override void StoreInitialValues()
+    {
+        if (hasStoredInitialValues) return;
+        
+        base.StoreInitialValues();
+
+        initialAttackSpeedBoost = attackSpeedBoost;
+        initialMoveSpeedBoost = moveSpeedBoost;
+        initialZoneRadius = zoneRadius;
+        initialZoneDuration = zoneDuration;
+    }
+    
+    public override void ResetToInitialValues()
+    {
+        if (!hasStoredInitialValues) return;
+
+        base.ResetToInitialValues();
+
+        attackSpeedBoost = initialAttackSpeedBoost;
+        moveSpeedBoost = initialMoveSpeedBoost;
+        zoneRadius = initialZoneRadius;
+        zoneDuration = initialZoneDuration;
+        timer = 0f;
     }
 }

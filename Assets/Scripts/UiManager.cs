@@ -22,6 +22,7 @@ public class UiManager : Singleton<UiManager>
     [Header("Player Setting UI")]
     public GameObject weaponPanel;
     public Animator weaponPanelAnimator;
+    [Space(10)]
 
     [Header("Survival UI")]
     public TextMeshProUGUI phaseText;
@@ -31,6 +32,7 @@ public class UiManager : Singleton<UiManager>
     public Slider expBar;
 
     public Canvas skillCanvas;
+    public GameObject[] skillButtons;
     public Image[] skillIcons;
     public TextMeshProUGUI[] skillHeaderTexts;
     public TextMeshProUGUI[] skillDecriptionTexts;
@@ -39,13 +41,18 @@ public class UiManager : Singleton<UiManager>
     public GameObject equippedSkillGrid;
     public GameObject skillSlotPrefab;
 
-    public TextMeshProUGUI playerStatsText;
+    [Header("SFX")]
+    public AudioClip SkillPopSound;
+    [Space(10)]
 
+    public TextMeshProUGUI playerStatsText; // 디버깅용 플레이어 스탯 텍스트
 
     public GameManager _GM;
 
     private Queue<int> pendingLevelUps = new Queue<int>();
     private bool isProcessingLevelUp = false;
+
+    private AudioSource _AudioSource;
 
     #region Unity Event Methods
     private void Awake()
@@ -57,7 +64,7 @@ public class UiManager : Singleton<UiManager>
         else
             Debug.LogWarning("UI Manager: GM 어딨어?");
 
-        // SceneManager.sceneLoaded += OnSceneLoaded;
+        _AudioSource = GetComponent<AudioSource>();
 
         Debug.Log("UiManager Awake Ready");
     }
@@ -67,6 +74,11 @@ public class UiManager : Singleton<UiManager>
         if (skillSlotPrefab == null)
         {
             skillSlotPrefab = Resources.Load<GameObject>("Prefabs/UI/Skill Slot");
+        }
+
+        if (SkillPopSound == null)
+        {
+            SkillPopSound = Resources.Load<AudioClip>("Audio/SFX/skill_PopUp_Sound");
         }
     }
 
@@ -270,7 +282,7 @@ public class UiManager : Singleton<UiManager>
 
     public void UpdateExpBar(float exp, float maxExp)
     {
-        expBarText.text = $"{exp}/{maxExp}";
+        expBarText.text = $"{(int)exp}/{(int)maxExp}";
         expBar.value = exp / maxExp;
     }
 
@@ -283,8 +295,8 @@ public class UiManager : Singleton<UiManager>
         if (skills.Count > 0)
         {
             // IndexOutOfRange 에러 방지를 위한 안전 검사
-            int maxIndex = Mathf.Min(skills.Count, skillIcons.Length);
-            
+            int maxIndex = Mathf.Min(skills.Count, skillButtons.Length);
+
             for (int i = 0; i < maxIndex; i++)
             {
                 if (i < skillIcons.Length && i < skillHeaderTexts.Length && i < skillDecriptionTexts.Length)
@@ -297,6 +309,24 @@ public class UiManager : Singleton<UiManager>
                 }
             }
         }
+
+        float skillButtonOffset = 200f;
+        switch (skills.Count)
+        {
+            case 1:
+                skillButtons[0].GetComponent<RectTransform>().anchoredPosition = new Vector2(0, 0);
+                skillButtons[1].SetActive(false);
+                skillButtons[2].SetActive(false);
+                break;
+            case 2:
+                skillButtons[0].GetComponent<RectTransform>().anchoredPosition = new Vector2(-skillButtonOffset, 0);
+                skillButtons[1].GetComponent<RectTransform>().anchoredPosition = new Vector2(skillButtonOffset, 0);
+                skillButtons[2].SetActive(false);
+                break;
+            default:
+                break;
+        }
+
     }
     
     public void DeactivateSkillCanvas()

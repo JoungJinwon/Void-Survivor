@@ -98,8 +98,6 @@ public class SpinnerWeapon : Weapon
 
         float rotateSpeed = attackIntervalMultiplier * player.GetPlayerAttackSpeed();
         RotateSpinners(rotateSpeed);
-
-        Debug.Log("허리케인 어택!!");
     }
 
     public void RotateSpinners(float rotateSpeed)

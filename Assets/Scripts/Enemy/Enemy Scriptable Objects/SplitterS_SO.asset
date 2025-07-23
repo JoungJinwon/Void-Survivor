@@ -22,5 +22,5 @@ MonoBehaviour:
   splitCount: 2
   splitSizeMultiplier: 0.7
   splitHealthMultiplier: 0.5
-  splitDamageMultiplier: 0.7
+  splitDamageMultiplier: 0.5
   splitExpMultiplier: 0.5

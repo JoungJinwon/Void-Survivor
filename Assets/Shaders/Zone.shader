@@ -1,4 +1,4 @@
-Shader "Custom/Buffzone"
+Shader "Custom/Zone"
 {
     Properties
     {

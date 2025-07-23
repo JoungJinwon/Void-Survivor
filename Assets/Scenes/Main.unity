@@ -3598,16 +3598,20 @@ MonoBehaviour:
   weaponPanel: {fileID: 0}
   weaponPanelAnimator: {fileID: 0}
   phaseText: {fileID: 0}
+  gameTimeText: {fileID: 0}
   levelText: {fileID: 0}
   expBarText: {fileID: 0}
   expBar: {fileID: 0}
   skillCanvas: {fileID: 0}
+  skillButtons: []
   skillIcons: []
   skillHeaderTexts: []
   skillDecriptionTexts: []
   pausePanel: {fileID: 0}
   equippedSkillGrid: {fileID: 0}
   skillSlotPrefab: {fileID: 6573930540567372288, guid: eedf9d255d27af540b27fe766cb26710, type: 3}
+  SkillPopSound: {fileID: 8300000, guid: e8712c48eaf5f644186c4c4d69b3f908, type: 3}
+  playerStatsText: {fileID: 0}
   _GM: {fileID: 1634127920}
 --- !u!4 &1941012565
 Transform:

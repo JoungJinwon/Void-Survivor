@@ -19,7 +19,7 @@ public class EnemyBullet : MonoBehaviour
         transform.position += moveDirection * moveSpeed * Time.deltaTime;
 
         // 5초 후 자동 파괴
-        Destroy(gameObject, 5f);
+        Destroy(gameObject, 7f);
     }
 
     private void OnTriggerEnter(Collider other)

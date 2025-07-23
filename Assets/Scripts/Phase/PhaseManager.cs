@@ -112,7 +112,7 @@ public class PhaseManager : Singleton<PhaseManager>
     // 외부에서 enemy를 등록하는 함수
     public void RegisterEnemy(Enemy enemy)
     {
-        if (enemy == null) return;
+        if (enemy == null || remainingEnemies.Contains(enemy)) return;
 
         remainingEnemies.Add(enemy);
         enemyCount++;
@@ -153,5 +153,15 @@ public class PhaseManager : Singleton<PhaseManager>
     {
         if (enemyCount > 0)
             enemyCount--;
+    }
+
+    // 죽은 적을 리스트에서 제거하는 메서드 추가
+    public void RemoveEnemy(Enemy enemy)
+    {
+        if (enemy != null && remainingEnemies.Contains(enemy))
+        {
+            remainingEnemies.Remove(enemy);
+            DecreaseEnemyCount();
+        }
     }
 }

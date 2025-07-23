@@ -15,7 +15,15 @@ public static class EditorResetter
     {
         if (state == PlayModeStateChange.ExitingPlayMode) // 플레이 모드 종료 직전
         {
+            Debug.Log("Editor: Exiting play mode - Resetting values...");
             ResetWeaponProjectileCounts();
+            ResetAllSkillsToInitialValues();
+        }
+        else if (state == PlayModeStateChange.EnteredEditMode) // 에디터 모드 진입 후
+        {
+            Debug.Log("Editor: Entered edit mode - Ensuring all assets are saved...");
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
         }
     }
 
@@ -41,6 +49,56 @@ public static class EditorResetter
         }
         
         AssetDatabase.SaveAssets();
+    }
+    
+    private static void ResetAllSkillsToInitialValues()
+    {
+        // 모든 Skill ScriptableObject를 찾아서 초기값으로 리셋
+        string[] skillGUIDs = AssetDatabase.FindAssets("t:Skill");
+        int resetCount = 0;
+        
+        foreach (string guid in skillGUIDs)
+        {
+            string path = AssetDatabase.GUIDToAssetPath(guid);
+            Skill skill = AssetDatabase.LoadAssetAtPath<Skill>(path);
+            
+            if (skill != null)
+            {
+                // 초기값이 저장되지 않았다면 먼저 저장
+                if (!skill.hasStoredInitialValues)
+                {
+                    skill.StoreInitialValues();
+                }
+                else
+                {
+                    skill.ResetToInitialValues();
+                    EditorUtility.SetDirty(skill);
+                    resetCount++;
+                }
+            }
+        }
+        
+        if (resetCount > 0)
+        {
+            AssetDatabase.SaveAssets();
+            Debug.Log($"All {resetCount} skills have been reset to their initial values.");
+        }
+        else
+        {
+            Debug.Log("No skills found with stored initial values to reset.");
+        }
+    }
+    
+    [MenuItem("Tools/Reset All Skills to Initial Values")]
+    private static void ManualResetAllSkills()
+    {
+        if (EditorApplication.isPlaying)
+        {
+            Debug.LogWarning("Cannot reset skills while in play mode. Stop play mode first.");
+            return;
+        }
+        
+        ResetAllSkillsToInitialValues();
     }
 }
 #endif

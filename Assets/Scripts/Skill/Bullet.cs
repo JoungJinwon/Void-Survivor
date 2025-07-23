@@ -104,14 +104,12 @@ public class Bullet : MonoBehaviour
             if (enemy.IsAlive)
             {
                 enemy.TakeDamage(damage);
-                Debug.Log($"Bullet hit enemy: {enemy.name} for {damage} damage");
             }
             Destroy(gameObject);
         }
         // 벽 등 다른 오브젝트와 충돌 시에도 파괴 (Trigger가 아닌 경우)
         else if (!collider.isTrigger)
         {
-            Debug.Log($"Bullet hit obstacle: {collider.name}");
             Destroy(gameObject);
         }
     }

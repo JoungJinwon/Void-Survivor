@@ -125,10 +125,11 @@ public class Player : Entity
             level++;
             currentHealth = maxHealth; // 레벨업 시 체력 회복
 
-            IncreaseHealth(20f);
-            IncreaseAttack(2); // 레벨업 시 공격력 증가
-            IncreaseAttackSpeed(1.1f); // 레벨업 시 공격 속도 증가
-            maxExp = level * 100f;
+            IncreaseHealth(10f);
+            IncreaseAttack(1);
+            IncreaseAttackSpeed(1.05f);
+            IncreaseMoveSpeed(1.05f);
+            maxExp = CalculateMaxExp(level);
 
             // 게임 일시정지 및 UI 업데이트를 UiManager에서 처리
             if (UiManager.Instance != null)
@@ -136,6 +137,11 @@ public class Player : Entity
                 UiManager.Instance.HandleLevelUp(level);
             }
         }
+    }
+
+    private float CalculateMaxExp(int level)
+    {
+        return 100f * Mathf.Pow(1.5f, level - 1);
     }
 
     // 플레이어 체력 증가 메서드. 체력 증가 시 기존 체력 비율 유지.
@@ -180,18 +186,16 @@ public class Player : Entity
         moveSpeed = Mathf.Max(1f, moveSpeed / amount);
     }
 
-    public void Accelerate(int attackBoost, float attackSpeedBoost, float moveSpeedBoost)
+    public void Accelerate(float attackSpeedBoost, float moveSpeedBoost)
     {
-        IncreaseAttack(attackBoost);
         IncreaseAttackSpeed(attackSpeedBoost);
         IncreaseMoveSpeed(moveSpeedBoost);
 
         Debug.Log($"Player: (공격력/공격 속도/이동 속도) = {attackDamage}/{attackSpeed}/{moveSpeed}");
     }
 
-    public void Decelerate(int attackBoost, float attackSpeedBoost, float moveSpeedBoost)
+    public void Decelerate(float attackSpeedBoost, float moveSpeedBoost)
     {
-        DecreaseAttack(attackBoost);
         DecreaseAttackSpeed(attackSpeedBoost);
         DecreaseMoveSpeed(moveSpeedBoost);
 

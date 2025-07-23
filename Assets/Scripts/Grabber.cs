@@ -19,6 +19,7 @@ public class Grabber : MonoBehaviour
     public Slider expBar;
 
     public Canvas skillCanvas;
+    public GameObject[] skillButtons;
     public Image[] skillIconImages;
     public TextMeshProUGUI[] skillHeaderTexts;
     public TextMeshProUGUI[] skillDecriptionTexts;
@@ -78,6 +79,7 @@ public class Grabber : MonoBehaviour
         _UM.expBarText = expBarText;
         _UM.expBar = expBar;
         _UM.skillCanvas = skillCanvas;
+        _UM.skillButtons = skillButtons;
         _UM.skillIcons = skillIconImages;
         _UM.skillHeaderTexts = skillHeaderTexts;
         _UM.skillDecriptionTexts = skillDecriptionTexts;

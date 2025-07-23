@@ -66,7 +66,6 @@ public class SkillManager : Singleton<SkillManager>
     public void AddSkill(Skill skill)
     {
         equippedSkills.Add(skill);
-        selectableSkills.Remove(skill);
         skill.Activate();
 
         UiManager.Instance.UpdateEquippedSkillsGrid(skill);
@@ -84,7 +83,14 @@ public class SkillManager : Singleton<SkillManager>
         if (HasSkill(selectedSkill))
         {
             UpgradeSkill(selectedSkill);
-            Debug.Log($"Skill Manager: {selectedSkill.skillName} 업그레이드!");
+            Debug.Log($"Skill Manager: {selectedSkill.skillName} 레벨 {selectedSkill.skillLevel} 업그레이드!");
+            
+            if (selectedSkill.isMaxLevel)
+            {
+                selectableSkills.Remove(selectedSkill);
+                Debug.Log($"Skill Manager: {selectedSkill.skillName} 레벨 {selectedSkill.skillLevel} 업그레이드!");
+                return;
+            }
         }
         else
         {

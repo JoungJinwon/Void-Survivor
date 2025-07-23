@@ -71,8 +71,6 @@ public class BulletWeapon : Weapon
             lastAttackTime = Time.time;
 
             player.PlayAttackSound();
-
-            Debug.Log($"Bullet Weapon: Fire {projectileCount} bullets to {player.targetEnemy}!");
         }
         else
         {

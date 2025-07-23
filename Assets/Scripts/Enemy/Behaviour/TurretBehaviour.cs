@@ -13,17 +13,11 @@ public class TurretBehaviour : IEnemyBehavior
         Player player = GameManager.Instance._Player;
         if (player == null) return;
         
-        float playerDistance = Vector3.Distance(enemy.transform.position, player.transform.position);
-        
-        // 플레이어가 공격 범위 내에 있는지 확인
-        if (playerDistance <= enemy._EnemyData.attackRange)
+        // 공격 속도에 따라 발사
+        if (Time.time - lastAttackTime >= enemy._EnemyData.attackCoolTime)
         {
-            // 공격 속도에 따라 발사
-            if (Time.time - lastAttackTime >= enemy._EnemyData.attackCoolTime)
-            {
-                FireBullet(enemy, directionToPlayer);
-                lastAttackTime = Time.time;
-            }
+            FireBullet(enemy, directionToPlayer);
+            lastAttackTime = Time.time;
         }
     }
     

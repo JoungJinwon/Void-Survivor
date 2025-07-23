@@ -7,15 +7,8 @@ public class GuardianUnit : MonoBehaviour
     private float unitCoolTime;
     private float unitLastAttackTime;
 
-    // 유닛 회전 속도 (Degree per second)
-    private float unitMoveSpeed = 45f;
-    private float playerAttachedDistance = 5f;
-
-    private const float bulletSpeed = 30f; // 총알 속도
-
-    private Vector3 playerToTargetDir;
-    private Vector3 playerToUnitDir;
-    private Vector3 unitAttackDir;
+    private const float bulletSpeed = 0.8f; // 가디언 총알 속도 조정값
+    private Vector3 targetPosition;
 
     public GameObject guardianBulletPrefab;
 
@@ -28,7 +21,15 @@ public class GuardianUnit : MonoBehaviour
         unitCoolTime = cooldownTime;
         unitLastAttackTime = Time.time;
 
+        // Player 참조 초기화
+        player = GameManager.Instance._Player;
+
         Debug.Log($"GuardianUnit Ready!");
+    }
+
+    public void SetTargetPosition(Vector3 position)
+    {
+        targetPosition = position;
     }
 
     private void FixedUpdate()
@@ -38,8 +39,10 @@ public class GuardianUnit : MonoBehaviour
 
         UnitMove();
 
-        if (Time.time - unitLastAttackTime < unitCoolTime)
+        if (Time.fixedTime - unitLastAttackTime < unitCoolTime)
+        {
             return;
+        }
         else
         {
             unitLastAttackTime = Time.time;
@@ -51,44 +54,26 @@ public class GuardianUnit : MonoBehaviour
     {
         FindEnemy();
 
-        Vector3 playerPos = player.transform.position;
-
-        if (!hasTarget)
-        {
-            // No enemies - maintain current position around player
-            Vector3 currentDir = (transform.position - playerPos).normalized;
-            transform.position = playerPos + currentDir * playerAttachedDistance;
-            return;
-        }
-
-        playerToTargetDir = targetEnemy.transform.position - playerPos;
-        playerToUnitDir = transform.position - playerPos;
-        unitAttackDir = (playerToTargetDir - playerToUnitDir).normalized;
-        Vector3 desiredDirection = -playerToTargetDir.normalized;
-        playerToUnitDir = playerToUnitDir.normalized;
-
-        float currentAngle = Mathf.Atan2(playerToUnitDir.z, playerToUnitDir.x);
-        float targetAngle = Mathf.Atan2(desiredDirection.z, desiredDirection.x);
-
-        float rotationSpeed = unitMoveSpeed * Time.fixedDeltaTime * Mathf.Deg2Rad;
-        float newAngle = Mathf.MoveTowardsAngle(currentAngle, targetAngle, rotationSpeed);
-
-        transform.position = playerPos + new Vector3(
-            Mathf.Cos(newAngle) * playerAttachedDistance,
-            0f,
-            Mathf.Sin(newAngle) * playerAttachedDistance
-        );
+        // 목표 위치로 부드럽게 이동
+        transform.position = Vector3.Lerp(transform.position, targetPosition, Time.fixedDeltaTime * 3f);
     }
 
     private void UnitAttack()
     {
-        if (playerToTargetDir == Vector3.zero || !hasTarget) return;
+        if (!hasTarget || targetEnemy == null || !targetEnemy.IsAlive)
+        {
+            Debug.LogWarning("Guardian: 타겟이 없으므로 공격을 취소합니다.");
+            return;
+        }
+
+        // 타겟을 향한 방향 계산
+        Vector3 attackDirection = (targetEnemy.transform.position - transform.position).normalized;
 
         GameObject bullet = Instantiate(guardianBulletPrefab, transform.position, Quaternion.identity);
         Bullet bulletComp = bullet.GetComponent<Bullet>();
         if (bulletComp != null)
         {
-            bulletComp.Init(unitAttackDir, bulletSpeed, (int)unitAttackDamage);
+            bulletComp.Init(attackDirection, bulletSpeed, (int)unitAttackDamage);
         }
     }
 
@@ -97,34 +82,42 @@ public class GuardianUnit : MonoBehaviour
         if (player == null)
             player = GameManager.Instance._Player;
 
-        // player가 타겟을 가지고 있지 않으면 직접 찾는다
-        if (player.targetEnemy == null)
+        // player가 타겟을 가지고 있으면 그것을 우선 사용
+        if (player.targetEnemy != null && player.targetEnemy.IsAlive)
         {
-            float minDist = float.MaxValue;
+            targetEnemy = player.targetEnemy;
+            hasTarget = true;
+            return;
+        }
 
-            Enemy[] enemies = FindObjectsByType<Enemy>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
-            if (enemies.Length == 0)
+        // player가 타겟을 가지고 있지 않거나 타겟이 죽었으면 직접 찾는다
+        float minDist = float.MaxValue;
+        Enemy closestEnemy = null;
+
+        Enemy[] enemies = FindObjectsByType<Enemy>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
+        
+        foreach (Enemy enemy in enemies)
+        {
+            if (enemy.IsAlive)
             {
-                targetEnemy = null;
-                hasTarget = false;
-                return; // 없다면 바로 return
-            }
-            else
-            {
-                foreach (Enemy enemy in enemies)
+                float dist = Vector3.Distance(transform.position, enemy.transform.position);
+                if (dist < minDist)
                 {
-                    float dist = Vector3.Distance(player.transform.position, enemy.transform.position);
-                    if (dist < minDist && enemy.IsAlive)
-                    {
-                        minDist = dist;
-                        targetEnemy = enemy;
-                    }
+                    minDist = dist;
+                    closestEnemy = enemy;
                 }
-
-                hasTarget = true;
             }
         }
+
+        if (closestEnemy != null)
+        {
+            targetEnemy = closestEnemy;
+            hasTarget = true;
+        }
         else
-            targetEnemy = player.targetEnemy;
+        {
+            targetEnemy = null;
+            hasTarget = false;
+        }
     }
 }

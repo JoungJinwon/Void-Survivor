@@ -6,7 +6,6 @@ public class AccelerationZone : MonoBehaviour
     private bool isActivating = false;
     private bool isDestroying = false; // 파괴 프로세스 진행 중인지 확인
 
-    private int attackBoost;
     private float attackSpeedBoost;
     private float moveSpeedBoost;
 
@@ -15,11 +14,10 @@ public class AccelerationZone : MonoBehaviour
 
     private Animator animator;
 
-    public void Init(float radius, float duration, int attack, float attackSpeed, float moveSpeed)
+    public void Init(float radius, float duration, float attackSpeed, float moveSpeed)
     {
         zoneRadius = radius;
         zoneDuration = duration;
-        attackBoost = attack;
         attackSpeedBoost = attackSpeed;
         moveSpeedBoost = moveSpeed;
 
@@ -49,7 +47,7 @@ public class AccelerationZone : MonoBehaviour
         yield return null;
         
         // Disappear 애니메이션 상태로 전환될 때까지 대기
-        while (!animator.GetCurrentAnimatorStateInfo(0).IsName("Disappear"))
+        while (!animator.GetCurrentAnimatorStateInfo(0).IsName("AccelZone_Disappear"))
         {
             yield return null;
         }
@@ -61,7 +59,7 @@ public class AccelerationZone : MonoBehaviour
         yield return new WaitForSeconds(animationLength);
 
         if (isActivating)
-            GameManager.Instance._Player.Decelerate(attackBoost, attackSpeedBoost, moveSpeedBoost);
+            GameManager.Instance._Player.Decelerate(attackSpeedBoost, moveSpeedBoost);
         
         Destroy(gameObject);
     }
@@ -73,7 +71,7 @@ public class AccelerationZone : MonoBehaviour
             if (player.IsAlive)
             {
                 isActivating = true;
-                player.Accelerate(attackBoost, attackSpeedBoost, moveSpeedBoost);
+                player.Accelerate(attackSpeedBoost, moveSpeedBoost);
             }
         }
     }
@@ -85,7 +83,7 @@ public class AccelerationZone : MonoBehaviour
             if (player.IsAlive)
             {
                 isActivating = false;
-                player.Decelerate(attackBoost, attackSpeedBoost, moveSpeedBoost);
+                player.Decelerate(attackSpeedBoost, moveSpeedBoost);
             }
         }
     }

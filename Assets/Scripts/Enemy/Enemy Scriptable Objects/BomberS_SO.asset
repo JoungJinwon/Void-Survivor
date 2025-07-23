@@ -21,4 +21,4 @@ MonoBehaviour:
   enemyType: 4
   explosionRadius: 5
   explosionDamage: 150
-  explosionEffectPrefab: {fileID: 0}
+  explosionEffectPrefab: {fileID: 5673381001589489579, guid: b84259e3f56a4964cb63837d50e13757, type: 3}

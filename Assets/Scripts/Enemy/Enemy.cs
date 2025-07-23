@@ -19,6 +19,7 @@ public class Enemy : Entity
     protected IEnemyBehavior behavior;
 
     public Rigidbody _Rigidbody { get; private set; }
+    public AudioSource _AudioSource { get; private set; }
 
     // 공용 접근자 추가
     public float CurrentHealth { get { return _currentHealth; } set { _currentHealth = value; } }
@@ -29,7 +30,7 @@ public class Enemy : Entity
     [SerializeField] private Material enemyMaterial;
     [SerializeField] private ParticleSystem deathParticles;
     
-    private Renderer enemyRenderer;
+    private Renderer _EnemyRenderer;
     private bool isDying = false;
     private bool isFlashing = false;
 
@@ -53,20 +54,32 @@ public class Enemy : Entity
 
     protected virtual void Start()
     {
-        behavior = _EnemyData.enemyType switch
+        // behavior가 이미 설정되어 있지 않은 경우에만 새로 생성
+        if (behavior == null)
         {
-            EnemyType.Charger => new ChargerBehaviour(),
-            EnemyType.Shooter => new ShooterBehaviour(),
-            EnemyType.Turret => new TurretBehaviour(),
-            EnemyType.Splitter => new SplitterBehaviour(),
-            EnemyType.Bomber => new ChargerBehaviour(), // Bomber는 일단 Charger처럼 행동
-            _ => new ChargerBehaviour()
-        };
+            behavior = _EnemyData.enemyType switch
+            {
+                EnemyType.Charger => new ChargerBehaviour(),
+                EnemyType.Shooter => new ShooterBehaviour(),
+                EnemyType.Turret => new TurretBehaviour(),
+                EnemyType.Splitter => new SplitterBehaviour(),
+                EnemyType.Bomber => new BomberBehaviour(), // Bomber 전용 행동 추가
+                _ => new ChargerBehaviour()
+            };
+        }
     }
 
     protected virtual void Update()
     {
-        if (!IsAlive || GameManager.Instance.IsGamePaused) return;
+        if (!IsAlive)
+            return;
+
+        if (GameManager.Instance.IsGamePaused)
+        {
+            if (_Rigidbody != null)
+                _Rigidbody.linearVelocity = Vector3.zero; // 게임이 일시정지되면 속도를 0으로 설정
+            return;
+        }
 
         directionToPlayer = (_Player.transform.position - transform.position).normalized;
 
@@ -79,7 +92,8 @@ public class Enemy : Entity
     public void InitEnemy()
     {
         _Rigidbody = GetComponent<Rigidbody>();
-        enemyRenderer = GetComponent<Renderer>();
+        _AudioSource = GetComponent<AudioSource>();
+        _EnemyRenderer = GetComponent<Renderer>();
 
         _maxHealth = _EnemyData.maxHealth;
         _attackDamage = _EnemyData.attackDamage;
@@ -87,10 +101,10 @@ public class Enemy : Entity
         _currentHealth = _maxHealth;
 
         // 머티리얼 복사 (인스턴스 생성)
-        if (enemyRenderer != null && enemyMaterial != null)
+        if (_EnemyRenderer != null && enemyMaterial != null)
         {
-            enemyRenderer.material = new Material(enemyMaterial);
-            enemyMaterial = enemyRenderer.material;
+            _EnemyRenderer.material = new Material(enemyMaterial);
+            enemyMaterial = _EnemyRenderer.material;
         }
     }
 
@@ -106,14 +120,11 @@ public class Enemy : Entity
         }
         else
         {
-            // 데미지 시각적 효과
+            _AudioSource?.Play();
             StartCoroutine(DamageVisualEffect());
             
             if (hpBar == null || !HealthBarManager.Instance.IsBarActive(hpBar))
-            {
                 hpBar = HealthBarManager.Instance.RequestBar(transform);
-                Debug.Log($"{gameObject.name}의 체력바 초기화");
-            }
 
             hpBar.UpdateHealth(_currentHealth / _maxHealth);
         }
@@ -151,7 +162,7 @@ public class Enemy : Entity
 
         _Rigidbody.linearVelocity = Vector3.zero;
 
-        // 사망 시각적 효과 시작
+        // 사망 이펙트 호출
         StartCoroutine(DeathVisualEffect());
 
         PhaseManager.Instance.DecreaseEnemyCount();

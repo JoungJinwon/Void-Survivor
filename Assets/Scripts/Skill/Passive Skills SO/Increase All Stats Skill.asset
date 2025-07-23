@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b618c40380379a243afc1d83cc07c13c, type: 3}
   m_Name: Increase All Stats Skill
   m_EditorClassIdentifier: 
+  isMaxLevel: 0
   skillId: 7
   skillName: "\uC9C4\uD654"
   skillDescription: "\uD50C\uB808\uC774\uC5B4\uC758 \uBAA8\uB4E0 \uC2A4\uD0EF\uC744
@@ -21,7 +22,16 @@ MonoBehaviour:
   cooldownTime: 0
   icon: {fileID: 21300000, guid: af9a5415b95ad4242a7ff42fcdb41530, type: 3}
   skillType: 2
-  healthIncreaseAmount: 30
-  attackIncreaseAmount: 5
-  attackSpeedIncreaseAmount: 1.2
-  moveSpeedIncreaseAmount: 1.2
+  initialSkillLevel: 1
+  initialMaxLevel: 5
+  initialCooldownTime: 0
+  initialIsMaxLevel: 0
+  hasStoredInitialValues: 1
+  healthIncreaseAmount: 20
+  attackIncreaseAmount: 2
+  attackSpeedIncreaseAmount: 1.1
+  moveSpeedIncreaseAmount: 1.1
+  initialHealthIncreaseAmount: 20
+  initialAttackIncreaseAmount: 2
+  initialAttackSpeedIncreaseAmount: 1.1
+  initialMoveSpeedIncreaseAmount: 1.1

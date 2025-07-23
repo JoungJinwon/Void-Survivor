@@ -85,6 +85,8 @@ Material:
     - _AddPrecomputedVelocity: 0
     - _AlphaClip: 0
     - _AlphaToMask: 0
+    - _BigStarChance: 0.1
+    - _BigStarSizeMultiplier: 3
     - _Blend: 0
     - _BlendModePreserveSpecular: 1
     - _BumpScale: 1
@@ -92,6 +94,7 @@ Material:
     - _ClearCoatSmoothness: 0
     - _Cull: 2
     - _Cutoff: 0.5
+    - _DepthLayers: 3
     - _DetailAlbedoMapScale: 1
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
@@ -113,6 +116,7 @@ Material:
     - _StarDensity: 40
     - _StarSize: 0.02
     - _Surface: 0
+    - _TwinkleSpeed: 2
     - _WorkflowMode: 1
     - _ZWrite: 1
     m_Colors:
@@ -120,6 +124,9 @@ Material:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
+    - _StarColor1: {r: 1, g: 1, b: 1, a: 1}
+    - _StarColor2: {r: 0.8, g: 0.9, b: 1, a: 1}
+    - _StarColor3: {r: 1, g: 0.8, b: 0.6, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
 --- !u!114 &5237695324938685242

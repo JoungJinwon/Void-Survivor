@@ -23,7 +23,23 @@ public class GameManager : Singleton<GameManager>
         InitSingleton();
         InitGameManager();
 
+        // 애플리케이션 종료 시 스킬 리셋
+        Application.quitting += OnApplicationQuitting;
+
         Debug.Log("GameManager Awake Ready");
+    }
+    
+    private void OnApplicationQuitting()
+    {
+        Debug.Log("Application is quitting - Resetting skills to initial values");
+        ResetAllSkillsToInitialValues();
+    }
+    
+    private void OnDestroy()
+    {
+        // 이벤트 해제
+        Application.quitting -= OnApplicationQuitting;
+        SceneManager.sceneLoaded -= OnSceneLoaded;
     }
 
     private void Update()
@@ -189,7 +205,47 @@ public class GameManager : Singleton<GameManager>
     public void GameExit()
     {
         Debug.Log("Game Exiting...");
+        
+        // 게임 종료 시 모든 스킬을 초기값으로 리셋
+        ResetAllSkillsToInitialValues();
+        
         Application.Quit();
+    }
+    
+    /// <summary>
+    /// 모든 스킬을 초기값으로 리셋합니다
+    /// </summary>
+    private void ResetAllSkillsToInitialValues()
+    {
+        if (SkillManager.Instance != null && SkillManager.Instance.skillDatabase != null)
+        {
+            int resetCount = 0;
+            foreach (Skill skill in SkillManager.Instance.skillDatabase)
+            {
+                if (skill != null)
+                {
+                    // 초기값이 저장되지 않았다면 먼저 저장
+                    if (!skill.hasStoredInitialValues)
+                    {
+                        skill.StoreInitialValues();
+                    }
+                    else
+                    {
+                        skill.ResetToInitialValues();
+                        resetCount++;
+                    }
+                }
+            }
+            
+            if (resetCount > 0)
+            {
+                Debug.Log($"All {resetCount} skills have been reset to their initial values.");
+            }
+            else
+            {
+                Debug.Log("No skills found with stored initial values to reset.");
+            }
+        }
     }
 #endregion
 

@@ -11,18 +11,15 @@ public class IncreaseProjectileCountSkill : Skill
         
         weapon = GameManager.Instance._Player.GetPlayerWeapon();
         if (weapon == null)
-        {
             Debug.LogError($"No weapon fount for {skillName}");
-        }
         else
-        {
             weapon.IncreaseProjectileCount();
-        }
     }
 
     public override void Upgrade()
     {
-        skillLevel++;
+        base.Upgrade();
+        
         weapon.IncreaseProjectileCount();
     }
 }

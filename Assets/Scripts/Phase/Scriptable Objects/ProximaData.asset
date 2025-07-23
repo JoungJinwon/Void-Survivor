@@ -18,19 +18,19 @@ MonoBehaviour:
     enemies:
     - enemyPrefab: {fileID: 2860527470146255897, guid: d029945160dd5b0469896835f151b5e5, type: 3}
       count: 4
-  - spawnTime: 50
+  - spawnTime: 30
     enemies:
     - enemyPrefab: {fileID: 2860527470146255897, guid: d029945160dd5b0469896835f151b5e5, type: 3}
       count: 8
     - enemyPrefab: {fileID: -6353492503331775591, guid: d7f2e6c3c31fec347b1c109393c3a3a6, type: 3}
       count: 3
-  - spawnTime: 80
+  - spawnTime: 60
     enemies:
     - enemyPrefab: {fileID: 2860527470146255897, guid: d029945160dd5b0469896835f151b5e5, type: 3}
       count: 8
     - enemyPrefab: {fileID: -6353492503331775591, guid: d7f2e6c3c31fec347b1c109393c3a3a6, type: 3}
       count: 6
-  - spawnTime: 120
+  - spawnTime: 100
     enemies:
     - enemyPrefab: {fileID: 2860527470146255897, guid: d029945160dd5b0469896835f151b5e5, type: 3}
       count: 5
@@ -38,21 +38,21 @@ MonoBehaviour:
       count: 5
     - enemyPrefab: {fileID: 7509081234924109962, guid: a8ea396bc57e45e4399c4ec000353734, type: 3}
       count: 1
-  - spawnTime: 160
+  - spawnTime: 150
     enemies:
     - enemyPrefab: {fileID: 2860527470146255897, guid: d029945160dd5b0469896835f151b5e5, type: 3}
       count: 20
     - enemyPrefab: {fileID: -6353492503331775591, guid: d7f2e6c3c31fec347b1c109393c3a3a6, type: 3}
       count: 10
-  - spawnTime: 200
+  - spawnTime: 180
     enemies:
     - enemyPrefab: {fileID: -6353492503331775591, guid: d7f2e6c3c31fec347b1c109393c3a3a6, type: 3}
       count: 12
-  - spawnTime: 230
+  - spawnTime: 210
     enemies:
     - enemyPrefab: {fileID: 7509081234924109962, guid: a8ea396bc57e45e4399c4ec000353734, type: 3}
       count: 3
-  - spawnTime: 250
+  - spawnTime: 240
     enemies:
     - enemyPrefab: {fileID: 2860527470146255897, guid: d029945160dd5b0469896835f151b5e5, type: 3}
       count: 20

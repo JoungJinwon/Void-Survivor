@@ -21,6 +21,6 @@ MonoBehaviour:
   enemyType: 3
   splitCount: 3
   splitSizeMultiplier: 0.7
-  splitHealthMultiplier: 0.5
-  splitDamageMultiplier: 0.7
+  splitHealthMultiplier: 0.4
+  splitDamageMultiplier: 0.5
   splitExpMultiplier: 0.33

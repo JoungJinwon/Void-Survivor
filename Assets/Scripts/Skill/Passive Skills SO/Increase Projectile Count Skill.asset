@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 290b992ffd895464aa4938a032469001, type: 3}
   m_Name: Increase Projectile Count Skill
   m_EditorClassIdentifier: 
+  isMaxLevel: 0
   skillId: 6
   skillName: "\uD22C\uC0AC\uCCB4 \uC99D\uAC00"
   skillDescription: "\uD50C\uB808\uC774\uC5B4\uC758 \uAE30\uBCF8 \uD22C\uC0AC\uCCB4
@@ -21,3 +22,8 @@ MonoBehaviour:
   cooldownTime: 0
   icon: {fileID: 21300000, guid: c4401bec0d2f94dedb5c6a31dccd1899, type: 3}
   skillType: 2
+  initialSkillLevel: 1
+  initialMaxLevel: 5
+  initialCooldownTime: 0
+  initialIsMaxLevel: 0
+  hasStoredInitialValues: 1

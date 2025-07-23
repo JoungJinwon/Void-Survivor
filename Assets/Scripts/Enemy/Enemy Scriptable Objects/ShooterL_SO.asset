@@ -13,10 +13,10 @@ MonoBehaviour:
   m_Name: ShooterL_SO
   m_EditorClassIdentifier: 
   maxHealth: 300
-  moveSpeed: 2
+  moveSpeed: 3
   attackDamage: 50
-  attackCoolTime: 1
-  attackRange: 0
+  attackCoolTime: 2
+  attackRange: 30
   expReward: 300
   enemyType: 1
   enemyBulletPrefab: {fileID: 7485095425139515676, guid: 8ddeb345d89ebfa49af0a6ca42fc9746, type: 3}
