@@ -123,7 +123,6 @@ public class UiManager : Singleton<UiManager>
     {
         FindFadeCanvas();
 
-
         InitComplete = true;
         Debug.Log($"Ui Manager: Survival 씬 초기화 완료");
     }
@@ -211,6 +210,7 @@ public class UiManager : Singleton<UiManager>
     {
         int minutes = Mathf.FloorToInt(gameTime / 60);
         int seconds = Mathf.FloorToInt(gameTime % 60);
+        Debug.Log($"Game Time: {minutes:D2}:{seconds:D2}");
         gameTimeText.text = $"{minutes:D2}:{seconds:D2}";
     }
     

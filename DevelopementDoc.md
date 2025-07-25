@@ -12,6 +12,7 @@
 
 Survival Scene
 
+* Static Canvas: -1
 * Canvas, HpBarCanvas: 0
 * Skill Canvas: 1
 * Fade Canvas: 10

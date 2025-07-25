@@ -49,7 +49,7 @@ public class Player : Entity
         currentHealth = maxHealth;
         IsAlive = true;
 
-        _weapon = GetComponent<WeaponSlot>()?.equippedWeapon;
+        _weapon = SettingsManager.Instance.playerSettings.playerWeapon;
         _weapon?.InitWeapon();
 
         _audioSource = GetComponent<AudioSource>();

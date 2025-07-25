@@ -17,6 +17,7 @@ public class GameManager : Singleton<GameManager>
 
     public UiManager _UM { get; private set; }
     public PhaseManager _PM { get; private set; }
+    public SettingsManager _SM { get; private set; }
 
     private void Awake()
     {
@@ -25,8 +26,6 @@ public class GameManager : Singleton<GameManager>
 
         // 애플리케이션 종료 시 스킬 리셋
         Application.quitting += OnApplicationQuitting;
-
-        Debug.Log("GameManager Awake Ready");
     }
     
     private void OnApplicationQuitting()
@@ -58,6 +57,9 @@ public class GameManager : Singleton<GameManager>
     {
         if (UiManager.Instance != null)
             _UM = UiManager.Instance;
+
+        if (SettingsManager.Instance != null)
+            _SM = SettingsManager.Instance;
 
         SceneManager.sceneLoaded += OnSceneLoaded;
 
@@ -139,6 +141,9 @@ public class GameManager : Singleton<GameManager>
                 break;
             case CurrentScene.PlayerSetting:
                 UiManager.Instance.InitUiManager_PlayerSettings();
+                // 설정 씬 로드 시 설정값 적용
+                if (SettingsManager.Instance != null)
+                    SettingsManager.Instance.ApplySettings();
                 break;
             case CurrentScene.Survival:
                 InitSurvivalScene();
@@ -202,14 +207,36 @@ public class GameManager : Singleton<GameManager>
         Debug.Log("Game Resumed from Level Up - Skill selected");
     }
 
-    public void GameExit()
+    // 서바이벌씬에서 나오는 함수
+    public void ExitSurvival()
+    {
+        ResetAllSkillsToInitialValues();
+    }
+
+    // 게임 자체를 종료하는 함수
+    public void ExitGame()
     {
         Debug.Log("Game Exiting...");
-        
-        // 게임 종료 시 모든 스킬을 초기값으로 리셋
-        ResetAllSkillsToInitialValues();
-        
+
+        // 설정 저장
+        if (SettingsManager.Instance != null)
+            SettingsManager.Instance.SaveSettings();
+
+        if (currentScene == CurrentScene.Main)
+        {
+            
+        }
+        else if (currentScene == CurrentScene.Survival)
+        {
+            // 게임 종료 시 모든 스킬을 초기값으로 리셋
+            ResetAllSkillsToInitialValues();
+        }
+
+    #if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false; // 에디터에서 게임 종료
+    #else
         Application.Quit();
+    #endif
     }
     
     /// <summary>
