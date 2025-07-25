@@ -1,10 +1,11 @@
 using System.Collections;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class PlayerSettingsUI : MonoBehaviour
 {
-    private const float ANIMATION_DURATION = 0.1f;
+    private const float WEAPON_SELECT_ANIM_DURATION = 0.1f;
 
     private float prevSelectionX;
     private float selctionX;
@@ -20,6 +21,12 @@ public class PlayerSettingsUI : MonoBehaviour
     [Header("Weapon Selection")]
     public RectTransform weaponSeletionRect;
     public Image weaponSelectionBox;
+
+    [Header("Player Stats Text")]
+    public TextMeshProUGUI hpText;
+    public TextMeshProUGUI attackDamageText;
+    public TextMeshProUGUI attackSpeedText;
+    public TextMeshProUGUI moveSpeedText;
 
     private void Start()
     {
@@ -65,6 +72,8 @@ public class PlayerSettingsUI : MonoBehaviour
 
             prevSelectionX = weaponSeletionRect.anchoredPosition.x;
         }
+
+        UpdateStatsText();
     }
 
     private void OnBulletWeaponSelected()
@@ -95,10 +104,10 @@ public class PlayerSettingsUI : MonoBehaviour
     {
         float elapsedTime = 0f;
 
-        while (elapsedTime < ANIMATION_DURATION)
+        while (elapsedTime < WEAPON_SELECT_ANIM_DURATION)
         {
             elapsedTime += Time.deltaTime;
-            float t = Mathf.Clamp01(elapsedTime / ANIMATION_DURATION);
+            float t = Mathf.Clamp01(elapsedTime / WEAPON_SELECT_ANIM_DURATION);
             weaponSeletionRect.anchoredPosition = new Vector2(
                 Mathf.Lerp(prevSelectionX, selctionX, t),
                 weaponSeletionRect.anchoredPosition.y
@@ -107,5 +116,22 @@ public class PlayerSettingsUI : MonoBehaviour
         }
 
         prevSelectionX = selctionX;
+    }
+
+    private void UpdateStatsText()
+    {
+        var settings = SettingsManager.Instance.playerSettings;
+
+        if (hpText != null)
+            hpText.text = $"{settings.baseMaxHealth}";
+
+        if (attackDamageText != null)
+            attackDamageText.text = $"{settings.baseAttackDamage}";
+
+        if (attackSpeedText != null)
+            attackSpeedText.text = $"{settings.baseAttackSpeed}";
+
+        if (moveSpeedText != null)
+            moveSpeedText.text = $"{settings.baseMoveSpeed}";
     }
 }

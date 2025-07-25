@@ -2,11 +2,12 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public class Player : Entity
-{
-    [SerializeField] private float maxHealth = 100f;
-    [SerializeField] private int attackDamage = 10;
-    [SerializeField] private float attackSpeed = 1f;
-    [SerializeField] private float moveSpeed = 1f;
+{   
+    // 플레이어 기본 스탯 (플레이 중 이 값들은 변경되며, 플레이어 base Stat에는 영향을 미치지 않는다)
+    [SerializeField] private float maxHealth;
+    [SerializeField] private int attackDamage;
+    [SerializeField] private float attackSpeed;
+    [SerializeField] private float moveSpeed;
 
     private int level = 1;
     private int maxLevel = 20;
@@ -46,6 +47,9 @@ public class Player : Entity
 
     private void InitPlayer()
     {
+        // 현재 스탯을 기본 스탯으로 초기화
+        ResetStatsToBase();
+        
         currentHealth = maxHealth;
         IsAlive = true;
 
@@ -58,6 +62,28 @@ public class Player : Entity
 
         UiManager.Instance.UpdateLevelText(level);
         UiManager.Instance.UpdateExpBar(exp, maxExp);
+    }
+    
+    private void ResetStatsToBase()
+    {
+        maxHealth = SettingsManager.Instance.GetBaseMaxHealth();
+        attackDamage = SettingsManager.Instance.GetBaseAttackDamage();
+        attackSpeed = SettingsManager.Instance.GetBaseAttackSpeed();
+        moveSpeed = SettingsManager.Instance.GetBaseMoveSpeed();
+    }
+    
+    // 게임 종료 시 기본 스탯을 현재 스탯으로 업데이트하고 저장 (선택적)
+    public void SaveCurrentStatsAsBase()
+    {
+        if (SettingsManager.Instance != null)
+        {
+            SettingsManager.Instance.SetBaseMaxHealth(maxHealth);
+            SettingsManager.Instance.SetBaseAttackDamage(attackDamage);
+            SettingsManager.Instance.SetBaseAttackSpeed(attackSpeed);
+            SettingsManager.Instance.SetBaseMoveSpeed(moveSpeed);
+            
+            Debug.Log("Current stats saved as new base stats");
+        }
     }
 
     public void PlayAttackSound()
@@ -145,15 +171,13 @@ public class Player : Entity
     }
 
     // 플레이어 체력 증가 메서드. 체력 증가 시 기존 체력 비율 유지.
-    // 레벨업 및 스킬에서 사용된다
+    // 레벨업 및 스킬에서 사용된다 (임시 증가)
     public void IncreaseHealth(float amount)
     {
         float curHpRate = currentHealth / maxHealth;
         maxHealth += amount;
         currentHealth = maxHealth * curHpRate;
         UpdateHealthBar();
-
-        Debug.Log($"Player: (최대 체력/현재 체력) = {maxHealth}/{currentHealth}");
     }
 
     public void IncreaseAttack(int amount)
@@ -166,24 +190,24 @@ public class Player : Entity
         attackDamage = Mathf.Max(10, attackDamage - amount);
     }
 
-    public void IncreaseAttackSpeed(float amount)
+    public void IncreaseAttackSpeed(float multiplier)
     {
-        attackSpeed *= amount;
+        attackSpeed *= multiplier;
     }
 
-    public void DecreaseAttackSpeed(float amount)
+    public void DecreaseAttackSpeed(float multiplier)
     {
-        attackSpeed = Mathf.Max(1f, attackSpeed / amount);
+        attackSpeed = Mathf.Max(0.1f, attackSpeed / multiplier);
     }
 
-    public void IncreaseMoveSpeed(float amount)
+    public void IncreaseMoveSpeed(float multiplier)
     {
-        moveSpeed *= amount;
+        moveSpeed *= multiplier;
     }
 
-    public void DecreaseMoveSpeed(float amount)
+    public void DecreaseMoveSpeed(float multiplier)
     {
-        moveSpeed = Mathf.Max(1f, moveSpeed / amount);
+        moveSpeed = Mathf.Max(0.1f, moveSpeed / multiplier);
     }
 
     public void Accelerate(float attackSpeedBoost, float moveSpeedBoost)

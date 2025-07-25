@@ -62,13 +62,6 @@ public class GameManager : Singleton<GameManager>
             _SM = SettingsManager.Instance;
 
         SceneManager.sceneLoaded += OnSceneLoaded;
-
-        _Player = FindFirstObjectByType<Player>();
-        
-        if (_Player == null)
-            Debug.LogWarning("Game Manager: Player를 찾지 못했습니다");
-        else
-            Debug.Log("Game Manager: Player를 성공적으로 찾았습니다.");
     }
 #endregion
 
@@ -158,6 +151,10 @@ public class GameManager : Singleton<GameManager>
     private void InitSurvivalScene()
     {
         _Player = FindFirstObjectByType<Player>();
+        if (_Player == null)
+            Debug.LogWarning("Game Manager: Player를 찾지 못했습니다");
+        else
+            Debug.Log("Game Manager: Player를 성공적으로 찾았습니다.");
 
         if (PhaseManager.Instance != null)
             _PM = PhaseManager.Instance;

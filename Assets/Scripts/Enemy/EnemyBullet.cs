@@ -3,7 +3,7 @@ using System.Runtime.CompilerServices;
 
 public class EnemyBullet : MonoBehaviour
 {
-    private const int DefaultBulletSpeed = 20;
+    private const int DefaultBulletSpeed = 30;
     private const float BulletLifeTime = 10f;
 
     private int bulletdamage;

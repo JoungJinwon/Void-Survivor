@@ -17,6 +17,12 @@ public class SettingsManager : Singleton<SettingsManager>
     private const string SFX_VOLUME_KEY = "SFXVolume";
     private const string BRIGHTNESS_KEY = "ScreenBrightness";
     
+    // 플레이어 스탯 저장 키들
+    private const string BASE_HEALTH_KEY = "BaseMaxHealth";
+    private const string BASE_ATTACK_KEY = "BaseAttackDamage";
+    private const string BASE_ATTACK_SPEED_KEY = "BaseAttackSpeed";
+    private const string BASE_MOVE_SPEED_KEY = "BaseMoveSpeed";
+    
     private void Awake()
     {
         InitSingleton();
@@ -27,7 +33,7 @@ public class SettingsManager : Singleton<SettingsManager>
     {
         if (playerSettings == null)
         {
-            playerSettings = Resources.Load<PlayerSettings>("Settings/PlayerSettings");
+            playerSettings = Resources.Load<PlayerSettings>("Scriptable Objects/Player/PlayerSettings");
         }
         
         // PlayerPrefs에서 설정값 로드 (기본값은 현재 설정값)
@@ -35,6 +41,12 @@ public class SettingsManager : Singleton<SettingsManager>
         playerSettings.musicVolume = PlayerPrefs.GetFloat(MUSIC_VOLUME_KEY, playerSettings.musicVolume);
         playerSettings.sfxVolume = PlayerPrefs.GetFloat(SFX_VOLUME_KEY, playerSettings.sfxVolume);
         playerSettings.screenBrightness = PlayerPrefs.GetFloat(BRIGHTNESS_KEY, playerSettings.screenBrightness);
+        
+        // 플레이어 기본 스탯 로드
+        playerSettings.baseMaxHealth = PlayerPrefs.GetFloat(BASE_HEALTH_KEY, playerSettings.baseMaxHealth);
+        playerSettings.baseAttackDamage = PlayerPrefs.GetInt(BASE_ATTACK_KEY, playerSettings.baseAttackDamage);
+        playerSettings.baseAttackSpeed = PlayerPrefs.GetFloat(BASE_ATTACK_SPEED_KEY, playerSettings.baseAttackSpeed);
+        playerSettings.baseMoveSpeed = PlayerPrefs.GetFloat(BASE_MOVE_SPEED_KEY, playerSettings.baseMoveSpeed);
         
         // 설정값 적용
         ApplySettings();
@@ -50,6 +62,12 @@ public class SettingsManager : Singleton<SettingsManager>
         PlayerPrefs.SetFloat(MUSIC_VOLUME_KEY, playerSettings.musicVolume);
         PlayerPrefs.SetFloat(SFX_VOLUME_KEY, playerSettings.sfxVolume);
         PlayerPrefs.SetFloat(BRIGHTNESS_KEY, playerSettings.screenBrightness);
+        
+        // 플레이어 기본 스탯 저장
+        PlayerPrefs.SetFloat(BASE_HEALTH_KEY, playerSettings.baseMaxHealth);
+        PlayerPrefs.SetInt(BASE_ATTACK_KEY, playerSettings.baseAttackDamage);
+        PlayerPrefs.SetFloat(BASE_ATTACK_SPEED_KEY, playerSettings.baseAttackSpeed);
+        PlayerPrefs.SetFloat(BASE_MOVE_SPEED_KEY, playerSettings.baseMoveSpeed);
         
         PlayerPrefs.Save();
         
@@ -141,6 +159,54 @@ public class SettingsManager : Singleton<SettingsManager>
 
         Debug.Log($"Player weapon set to: {weapon.name}");
     }
+    #endregion
+
+    #region Player Stats Management
+    public void SetBaseMaxHealth(float health)
+    {
+        if (playerSettings == null) return;
+        
+        playerSettings.SetBaseMaxHealth(health);
+        SaveSettings();
+        
+        Debug.Log($"Base max health set to: {health}");
+    }
+    
+    public void SetBaseAttackDamage(int damage)
+    {
+        if (playerSettings == null) return;
+        
+        playerSettings.SetBaseAttackDamage(damage);
+        SaveSettings();
+        
+        Debug.Log($"Base attack damage set to: {damage}");
+    }
+    
+    public void SetBaseAttackSpeed(float speed)
+    {
+        if (playerSettings == null) return;
+        
+        playerSettings.SetBaseAttackSpeed(speed);
+        SaveSettings();
+        
+        Debug.Log($"Base attack speed set to: {speed}");
+    }
+    
+    public void SetBaseMoveSpeed(float speed)
+    {
+        if (playerSettings == null) return;
+        
+        playerSettings.SetBaseMoveSpeed(speed);
+        SaveSettings();
+        
+        Debug.Log($"Base move speed set to: {speed}");
+    }
+    
+    // 기본 스탯 getter 메서드들
+    public float GetBaseMaxHealth() => playerSettings?.baseMaxHealth ?? 100f;
+    public int GetBaseAttackDamage() => playerSettings?.baseAttackDamage ?? 10;
+    public float GetBaseAttackSpeed() => playerSettings?.baseAttackSpeed ?? 1f;
+    public float GetBaseMoveSpeed() => playerSettings?.baseMoveSpeed ?? 1f;
     #endregion
 
     public void ResetToDefaults()

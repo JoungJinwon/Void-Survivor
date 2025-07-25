@@ -44,7 +44,6 @@ public static class EditorResetter
                 else
                     weapon.projectileCount = 1; // 기본값으로 초기화
                 EditorUtility.SetDirty(weapon);
-                Debug.Log($"Reset projectile count for {weapon.name}");
             }
         }
         

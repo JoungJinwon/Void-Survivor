@@ -138,16 +138,14 @@ public class UiManager : Singleton<UiManager>
     public void FindFadeCanvas()
     {
         fadeCanvas = GameObject.Find("Fade Canvas");
-        if (fadeCanvas != null)
-        {
-            fadePanel = fadeCanvas.transform.Find("Fade Panel").gameObject;
-            if (fadePanel != null)
-                _fadeAnimator = fadePanel.GetComponent<Animator>();
-            else
-                Debug.LogWarning($"Ui Manager: {fadePanel}을 찾을 수 없습니다");
-        }
+        if (fadeCanvas == null)
+            fadeCanvas = Instantiate(Resources.Load<GameObject>("Prefabs/UI/Fade Canvas"));
+        
+        fadePanel = fadeCanvas.transform.Find("Fade Panel").gameObject;
+        if (fadePanel != null)
+            _fadeAnimator = fadePanel.GetComponent<Animator>();
         else
-            Debug.LogWarning($"UI Manager: {fadeCanvas}를 찾을 수 없습니다.");
+            Debug.LogWarning($"Ui Manager: {fadePanel}을 찾을 수 없습니다");
     }
 
     // 씬 진입 시 Fade In 효과
