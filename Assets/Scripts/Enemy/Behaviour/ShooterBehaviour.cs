@@ -15,7 +15,7 @@ public class ShooterBehaviour : IEnemyBehavior
         float playerDistance = Vector3.Distance(enemy.transform.position, player.transform.position);
         
         // 플레이어가 공격 범위 내에 있으면 투사체 발사
-        if (playerDistance <= enemy._EnemyData.attackRange)
+        if (playerDistance <= enemy._EnemyData.detectionRange)
         {
             // 공격 속도에 따라 발사
             if (Time.time - lastAttackTime >= enemy._EnemyData.attackCoolTime)

@@ -9,7 +9,7 @@ public abstract class EnemyData : ScriptableObject
     public float moveSpeed;
     public float attackDamage;
     public float attackCoolTime;
-    public float attackRange;
+    public float detectionRange;
     public float expReward;
     public EnemyType enemyType;
 }

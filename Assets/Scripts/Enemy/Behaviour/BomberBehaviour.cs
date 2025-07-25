@@ -3,9 +3,10 @@ using UnityEngine;
 public class BomberBehaviour : IEnemyBehavior
 {
     private bool hasExploded = false;
+    private float distanceToPlayer = 100f;
     private float explosionRange = 3f;
     private float explosionDamage = 50f;
-    private float fuseTime = 1f; // 폭발까지의 시간
+    private float fuseTime = 2f; // 폭발까지의 시간
     private float currentFuseTime = 0f;
     private bool fuseActivated = false;
     
@@ -13,8 +14,6 @@ public class BomberBehaviour : IEnemyBehavior
     {
         if (GameManager.Instance.IsGamePaused || hasExploded)
             return;
-        
-        float distanceToPlayer = Vector3.Distance(enemy.transform.position, enemy.transform.position + directionToPlayer * 100f);
         
         // 플레이어와의 실제 거리 계산
         if (GameObject.FindGameObjectWithTag("Player") != null)
@@ -24,10 +23,10 @@ public class BomberBehaviour : IEnemyBehavior
         }
         
         // 폭발 범위 안에 들어오면 퓨즈 활성화
-        if (distanceToPlayer <= explosionRange && !fuseActivated)
+        if (distanceToPlayer <= enemy._EnemyData.detectionRange && !fuseActivated)
         {
             fuseActivated = true;
-            // 시각적 효과 (빨간색 깜빡임 등)
+            // 메테리얼 시각적 효과 (빨간색 깜빡임 등)
             enemy.TriggerSpecialEffect("burn", fuseTime);
         }
         
@@ -49,7 +48,7 @@ public class BomberBehaviour : IEnemyBehavior
         rb.MovePosition(rb.position + directionToPlayer * moveSpeed * Time.deltaTime);
     }
     
-    private void Explode(Enemy enemy)
+    public void Explode(Enemy enemy)
     {
         if (hasExploded) return;
         hasExploded = true;
@@ -68,35 +67,49 @@ public class BomberBehaviour : IEnemyBehavior
                     player.TakeDamage(explosionDamage);
                 }
             }
+        }
+
+        if (enemy._EnemyData is BomberEnemyData bomberData && bomberData.explosionEffectPrefab != null)
+        {
+            // 폭발 위치에 파티클 이펙트 생성
+            GameObject explosionInstance = Object.Instantiate(
+                bomberData.explosionEffectPrefab, 
+                enemy.transform.position, 
+                Quaternion.identity
+            );
             
-            // 다른 적들에게도 데미지 (선택사항)
-            else if (hitCollider.CompareTag("Enemy"))
+            ParticleSystem explosionEffect = explosionInstance.GetComponent<ParticleSystem>();
+            
+            if (explosionEffect != null)
             {
-                Enemy otherEnemy = hitCollider.GetComponent<Enemy>();
-                if (otherEnemy != null && otherEnemy != enemy)
-                {
-                    otherEnemy.TakeDamage(explosionDamage * 0.5f); // 다른 적에게는 절반 데미지
-                }
+                explosionEffect.Play();
+                Debug.Log("Explosion Effect Playing!");
+
+                // 파티클 재생 완료 후 자동 삭제
+                float duration = explosionEffect.main.duration + explosionEffect.main.startLifetime.constantMax;
+                Object.Destroy(explosionInstance, duration);
+            }
+            
+            // 폭발 사운드 재생
+            if (bomberData.explosionSound != null)
+            {
+                AudioSource.PlayClipAtPoint(bomberData.explosionSound, enemy.transform.position);
             }
         }
-        
-        // 폭발 파티클 효과 (있다면)
-        // ParticleSystem explosionEffect = enemy.GetComponent<ParticleSystem>();
-        // if (explosionEffect != null)
-        // {
-        //     explosionEffect.Play();
-        // }
+        else
+        {
+            Debug.LogWarning("BomberEnemyData or explosionEffectPrefab is null!");
+        }
         
         // 폭발 시각 효과
         enemy.TriggerSpecialEffect("electric", 0.2f);
         
         // 자폭하므로 적 자신도 죽음
         enemy.CurrentHealth = 0;
-        // Enemy.Die()가 호출될 것임
     }
     
     // 디버그용 - 폭발 범위 시각화
-    public void OnDrawGizmosSelected(Enemy enemy)
+    public void DrawExplosionGizmo(Enemy enemy)
     {
         if (enemy != null)
         {

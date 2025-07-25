@@ -29,7 +29,7 @@ public class Enemy : Entity
     [Header("Visual Effects")]
     [SerializeField] private Material enemyMaterial;
     [SerializeField] private ParticleSystem deathParticles;
-    
+
     private Renderer _EnemyRenderer;
     private bool isDying = false;
     private bool isFlashing = false;
@@ -84,7 +84,7 @@ public class Enemy : Entity
         directionToPlayer = (_Player.transform.position - transform.position).normalized;
 
         behavior?.Execute(this, directionToPlayer);
-        
+
         // 체력에 따른 시각적 업데이트
         UpdateHealthVisuals();
     }
@@ -122,7 +122,7 @@ public class Enemy : Entity
         {
             _AudioSource?.Play();
             StartCoroutine(DamageVisualEffect());
-            
+
             if (hpBar == null || !HealthBarManager.Instance.IsBarActive(hpBar))
                 hpBar = HealthBarManager.Instance.RequestBar(transform);
 
@@ -144,13 +144,18 @@ public class Enemy : Entity
     protected override void Die()
     {
         if (isDying) return;
-        
+
         // Splitter 타입인 경우 분열 처리
         if (_EnemyData.enemyType == EnemyType.Splitter && behavior is SplitterBehaviour splitterBehaviour)
         {
             splitterBehaviour.HandleSplitting(this);
         }
-        
+        // Bomber 타입인 경우 자폭 처리
+        else if (_EnemyData.enemyType == EnemyType.Bomber && behavior is BomberBehaviour bomberBehaviour)
+        {
+            bomberBehaviour.Explode(this);
+        }
+
         isDying = true;
 
         IsAlive = false;
@@ -186,18 +191,18 @@ public class Enemy : Entity
         if (enemyMaterial != null)
         {
             enemyMaterial.SetFloat("_DamageAmount", 1.0f);
-            
+
             // 펄스 효과 증가
             float originalPulseSpeed = enemyMaterial.GetFloat("_PulseSpeed");
             enemyMaterial.SetFloat("_PulseSpeed", originalPulseSpeed * 2.0f);
-            
+
             // 림 라이팅 강화
             Color originalRimColor = enemyMaterial.GetColor("_RimColor");
             enemyMaterial.SetColor("_RimColor", Color.red);
-            
+
             // 0.1초 후 원래 상태로 복구
             yield return new WaitForSeconds(0.1f);
-            
+
             enemyMaterial.SetFloat("_DamageAmount", 0.0f);
             enemyMaterial.SetFloat("_PulseSpeed", originalPulseSpeed);
             enemyMaterial.SetColor("_RimColor", originalRimColor);
@@ -213,23 +218,23 @@ public class Enemy : Entity
         {
             float dissolveTime = 0.5f;
             float elapsedTime = 0f;
-            
+
             // 발광 효과 증가
             Color originalEmission = enemyMaterial.GetColor("_EmissionColor");
             enemyMaterial.SetColor("_EmissionColor", Color.white);
             enemyMaterial.SetFloat("_EmissionIntensity", 3.0f);
-            
+
             while (elapsedTime < dissolveTime)
             {
                 float dissolveAmount = elapsedTime / dissolveTime;
                 enemyMaterial.SetFloat("_DissolveAmount", dissolveAmount);
-                
+
                 // 디졸브 진행에 따라 사망 파티클 생성
                 if (dissolveAmount > 0.5f && deathParticles != null && !deathParticles.isPlaying)
                 {
                     deathParticles.Play();
                 }
-                
+
                 elapsedTime += Time.deltaTime;
                 yield return null;
             }
@@ -250,15 +255,15 @@ public class Enemy : Entity
         if (enemyMaterial == null) return;
 
         float healthPercent = _currentHealth / _maxHealth;
-        
+
         // 체력이 낮을수록 더 강한 발광 효과
         float emissionIntensity = Mathf.Lerp(1.0f, 3.0f, 1.0f - healthPercent);
         enemyMaterial.SetFloat("_EmissionIntensity", emissionIntensity);
-        
+
         // 체력이 낮을수록 더 빠른 펄스
         float pulseSpeed = Mathf.Lerp(1.0f, 3.0f, 1.0f - healthPercent);
         enemyMaterial.SetFloat("_PulseSpeed", pulseSpeed);
-        
+
         // 체력이 30% 이하일 때 경고 색상
         if (healthPercent <= 0.3f)
         {
@@ -294,21 +299,21 @@ public class Enemy : Entity
                 enemyMaterial.SetFloat("_RimPower", 1.0f);
                 enemyMaterial.SetFloat("_PulseSpeed", 0.2f);
                 break;
-                
+
             case "burn":
                 // 화염 효과
                 enemyMaterial.SetColor("_EmissionColor", Color.red);
                 enemyMaterial.SetFloat("_EmissionIntensity", 5.0f);
                 enemyMaterial.SetFloat("_PulseSpeed", 5.0f);
                 break;
-                
+
             case "electric":
                 // 전기 효과
                 enemyMaterial.SetColor("_RimColor", Color.yellow);
                 enemyMaterial.SetFloat("_RimPower", 0.5f);
                 enemyMaterial.SetFloat("_PulseSpeed", 10.0f);
                 break;
-                
+
             case "poison":
                 // 독 효과
                 enemyMaterial.SetColor("_Color", Color.green);
@@ -335,4 +340,13 @@ public class Enemy : Entity
         enemyMaterial.SetFloat("_EmissionIntensity", 1.0f);
         enemyMaterial.SetFloat("_DamageAmount", 0.0f);
     }
+    
+    private void OnDrawGizmosSelected()
+{
+    // Bomber 타입인 경우에만 기즈모 그리기
+    if (_EnemyData != null && _EnemyData.enemyType == EnemyType.Bomber && behavior is BomberBehaviour bomberBehaviour)
+    {
+        bomberBehaviour.DrawExplosionGizmo(this);
+    }
+}
 }

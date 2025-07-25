@@ -8,6 +8,8 @@ public class BomberEnemyData : EnemyData
     [Header("Explosion Settings")]
     public float explosionRadius = 5f;
     public float explosionDamage = 20f;
+
+    public AudioClip explosionSound;
     public GameObject explosionEffectPrefab;
     
     private void OnEnable()
