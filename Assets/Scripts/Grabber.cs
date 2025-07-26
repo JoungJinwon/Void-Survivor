@@ -29,6 +29,11 @@ public class Grabber : MonoBehaviour
 
     public TextMeshProUGUI playerStatsText;
 
+    public GameObject gameOverCanvas;
+    public GameObject gameOverPanel;
+    public TextMeshProUGUI stageRecordText;
+    public TextMeshProUGUI timeRecordText;
+
     private void Awake()
     {
         InitGrabber();
@@ -87,6 +92,11 @@ public class Grabber : MonoBehaviour
         _UM.equippedSkillGrid = equippedSkillGrid;
 
         _UM.playerStatsText = playerStatsText;
+
+        _UM.gameOverCanvas = gameOverCanvas;
+        _UM.gameOverPanel = gameOverPanel;
+        _UM.stageRecordText = stageRecordText;
+        _UM.timeRecordText = timeRecordText;
     }
 
     public void ActiveWindowSlide()

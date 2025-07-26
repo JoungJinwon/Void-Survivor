@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -14,6 +15,16 @@ public class Player : Entity
     private float exp;
     private float maxExp = 100f;
     private float currentHealth;
+
+    private ParticleSystem deathParticle;
+
+    // 시각적 효과를 위한 변수들 추가
+    [Header("Visual Effects")]
+    [SerializeField] private Material playerMaterial;
+    [SerializeField] private ParticleSystem deathParticles;
+
+    private Renderer _PlayerRenderer;
+    private bool isDying = false;
 
     [SerializeField] private Slider hpBar; // Player의 체력바를 표시할 Slider UI
     [SerializeField] private Slider expBar; // Player의 경험치를 표시할 Slider UI
@@ -50,6 +61,10 @@ public class Player : Entity
         // 현재 스탯을 기본 스탯으로 초기화
         ResetStatsToBase();
         
+        // 플레이어 상태 초기화
+        level = 1;
+        exp = 0f;
+        maxExp = 100f;
         currentHealth = maxHealth;
         IsAlive = true;
 
@@ -60,8 +75,28 @@ public class Player : Entity
         if (_weapon?.attackSound != null)
             _audioSource.clip = _weapon.attackSound;
 
-        UiManager.Instance.UpdateLevelText(level);
-        UiManager.Instance.UpdateExpBar(exp, maxExp);
+        deathParticle = GetComponent<ParticleSystem>();
+        
+        // 렌더러 및 머티리얼 초기화 추가
+        _PlayerRenderer = GetComponent<Renderer>();
+        
+        // 머티리얼 복사 (인스턴스 생성)
+        if (_PlayerRenderer != null && playerMaterial != null)
+        {
+            _PlayerRenderer.material = new Material(playerMaterial);
+            playerMaterial = _PlayerRenderer.material;
+        }
+
+        // UI 업데이트
+        if (UiManager.Instance != null)
+        {
+            UiManager.Instance.UpdateLevelText(level);
+            UiManager.Instance.UpdateExpBar(exp, maxExp);
+        }
+        
+        UpdateHealthBar();
+        
+        Debug.Log("Player Initialized Successfully");
     }
     
     private void ResetStatsToBase()
@@ -122,8 +157,18 @@ public class Player : Entity
 
     protected override void Die()
     {
+        if (isDying) return;
+        
+        isDying = true;
         IsAlive = false;
-        // 게임 오버 처리
+        
+        // 사망 이펙트 호출
+        StartCoroutine(DeathVisualEffect());
+        
+        GameManager.Instance.GameOver();
+        
+        if (deathParticle != null)
+            deathParticle.Play();
     }
 
     #region Update Status
@@ -133,7 +178,7 @@ public class Player : Entity
         if (level == maxLevel) return;
 
         exp += amount;
-        
+
         // Handle multiple level ups sequentially
         while (exp >= maxExp && level < maxLevel)
         {
@@ -233,5 +278,59 @@ public class Player : Entity
         if (hpBar == null) return;
 
         hpBar.value = currentHealth / maxHealth;
+    }
+
+    // 사망 시각적 효과 코루틴 추가
+    private IEnumerator DeathVisualEffect()
+    {
+        // 디졸브 효과로 사망 연출
+        if (playerMaterial != null)
+        {
+            float dissolveTime = 1.0f; // 플레이어는 조금 더 긴 시간
+            float elapsedTime = 0f;
+
+            // 발광 효과 증가
+            Color originalEmission = playerMaterial.GetColor("_EmissionColor");
+            playerMaterial.SetColor("_EmissionColor", Color.white);
+            playerMaterial.SetFloat("_EmissionIntensity", 5.0f);
+
+            while (elapsedTime < dissolveTime)
+            {
+                float dissolveAmount = elapsedTime / dissolveTime;
+                playerMaterial.SetFloat("_DissolveAmount", dissolveAmount);
+
+                // 디졸브 진행에 따라 사망 파티클 생성
+                if (dissolveAmount > 0.3f && deathParticles != null && !deathParticles.isPlaying)
+                {
+                    deathParticles.Play();
+                }
+                
+                // 기존 파티클도 재생
+                if (dissolveAmount > 0.5f && deathParticle != null && !deathParticle.isPlaying)
+                {
+                    deathParticle.Play();
+                }
+
+                elapsedTime += Time.deltaTime;
+                yield return null;
+            }
+        }
+        else
+        {
+            // 머티리얼이 없는 경우 기존 파티클만 재생
+            if (deathParticle != null)
+                deathParticle.Play();
+            
+            yield return new WaitForSeconds(1.5f);
+        }
+    }
+
+    private void OnDestroy()
+    {
+        // 머티리얼 인스턴스 정리
+        if (playerMaterial != null)
+        {
+            DestroyImmediate(playerMaterial);
+        }
     }
 }

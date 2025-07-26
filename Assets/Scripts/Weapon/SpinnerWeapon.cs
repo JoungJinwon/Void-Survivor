@@ -87,7 +87,7 @@ public class SpinnerWeapon : Weapon
             newSpinner.transform.localPosition = localPosition;
             newSpinner.transform.localScale *= spinnerSize; // 스피너 크기 조정
             equippedSpinners.Add(newSpinner);
-            newSpinner.GetComponent<Spinner>().Init((int)weaponDamage);
+            newSpinner.GetComponent<Spinner>().Init(GameManager.Instance._Player.GetPlayerAttackDamage());
         }
     }
 

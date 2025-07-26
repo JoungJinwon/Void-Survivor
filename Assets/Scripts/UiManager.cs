@@ -41,11 +41,16 @@ public class UiManager : Singleton<UiManager>
     public GameObject equippedSkillGrid;
     public GameObject skillSlotPrefab;
 
+    public TextMeshProUGUI playerStatsText; // 디버깅용 플레이어 스탯 텍스트
+
+    public GameObject gameOverCanvas;
+    public GameObject gameOverPanel;
+    public TextMeshProUGUI stageRecordText;
+    public TextMeshProUGUI timeRecordText;
+
     [Header("SFX")]
     public AudioClip SkillPopSound;
     [Space(10)]
-
-    public TextMeshProUGUI playerStatsText; // 디버깅용 플레이어 스탯 텍스트
 
     public GameManager _GM;
 
@@ -91,7 +96,7 @@ public class UiManager : Singleton<UiManager>
             case SceneData.CurrentScene.PlayerSetting:
                 break;
             case SceneData.CurrentScene.Survival:
-                if (_GM != null)
+                if (_GM != null && !_GM.IsGamePaused)
                     UpdateGameTimeText(_GM.GameTime);
                 UpdatePlayerStatsText();
                 break;
@@ -140,7 +145,7 @@ public class UiManager : Singleton<UiManager>
         fadeCanvas = GameObject.Find("Fade Canvas");
         if (fadeCanvas == null)
             fadeCanvas = Instantiate(Resources.Load<GameObject>("Prefabs/UI/Fade Canvas"));
-        
+
         fadePanel = fadeCanvas.transform.Find("Fade Panel").gameObject;
         if (fadePanel != null)
             _fadeAnimator = fadePanel.GetComponent<Animator>();
@@ -211,7 +216,7 @@ public class UiManager : Singleton<UiManager>
         Debug.Log($"Game Time: {minutes:D2}:{seconds:D2}");
         gameTimeText.text = $"{minutes:D2}:{seconds:D2}";
     }
-    
+
     public void UpdatePlayerStatsText()
     {
         if (playerStatsText != null)
@@ -240,37 +245,31 @@ public class UiManager : Singleton<UiManager>
     private IEnumerator ProcessLevelUps()
     {
         isProcessingLevelUp = true;
-        
+
         // 게임 일시정지 (첫 번째 레벨업에서만)
         if (GameManager.Instance != null)
         {
-            GameManager.Instance.PauseForLevelUp();
+            GameManager.Instance.PauseGame();
         }
-        
+
         while (pendingLevelUps.Count > 0)
         {
             int level = pendingLevelUps.Dequeue();
-            
+
             UpdateLevelText(level);
             ActivateSkillCanvas();
-            
+
             // 스킬 선택을 기다림
             yield return new WaitUntil(() => !skillCanvas.gameObject.activeSelf);
-            
+
             // 다음 레벨업이 있다면 잠시 대기
             if (pendingLevelUps.Count > 0)
-            {
                 yield return new WaitForSeconds(0.5f);
-            }
         }
-        
+
         isProcessingLevelUp = false;
-        
-        // 모든 레벨업 처리 완료 후 게임 재개
-        if (GameManager.Instance != null)
-        {
-            GameManager.Instance.ResumeFromLevelUp();
-        }
+
+        GameManager.Instance.ResumeGame();
     }
 
     public void UpdateLevelText(int level)
@@ -324,13 +323,11 @@ public class UiManager : Singleton<UiManager>
             default:
                 break;
         }
-
     }
-    
+
     public void DeactivateSkillCanvas()
     {
         skillCanvas.gameObject.SetActive(false);
-        Debug.Log("Skill Canvas Deactivated");
     }
 
     /// <summary>
@@ -356,11 +353,7 @@ public class UiManager : Singleton<UiManager>
         GameObject skillSlot = Instantiate(skillSlotPrefab, equippedSkillGrid.transform);
         Image skillImage = skillSlot.transform.GetChild(0).GetComponent<Image>();
         if (skillImage != null)
-        {
             skillImage.sprite = skill.icon;
-            Debug.Log($"Skill {skill.skillName} added to Equipped Skills Grid.");
-            return;
-        }
         else
             Debug.LogWarning($"Ui Manager: Could not find child Image component in skill slot for {skill.skillName}");
     }
@@ -368,7 +361,7 @@ public class UiManager : Singleton<UiManager>
     /// <summary>
     /// 일시정지 UI 표시 (UI 버튼 클릭 시)
     /// </summary>
-    public void ShowPauseUI()
+    public void ActivatePausePanel()
     {
         if (pausePanel == null)
         {
@@ -377,22 +370,20 @@ public class UiManager : Singleton<UiManager>
         }
 
         pausePanel.SetActive(true);
-        Debug.Log("Pause UI Shown");
     }
 
     /// <summary>
     /// 일시정지 UI 숨김 (게임 재개 시)
     /// </summary>
-    public void HidePauseUI()
+    public void DeactivatePausePanel()
     {
         if (pausePanel == null)
         {
             Debug.LogWarning("Pause Panel is NULL");
             return;
         }
-        
+
         pausePanel.SetActive(false);
-        Debug.Log("Pause UI Hidden");
     }
 
     /// <summary>
@@ -405,7 +396,7 @@ public class UiManager : Singleton<UiManager>
             GameManager.Instance.PauseGame();
         }
 
-        ShowPauseUI();
+        ActivatePausePanel();
     }
 
     /// <summary>
@@ -418,7 +409,32 @@ public class UiManager : Singleton<UiManager>
             GameManager.Instance.ResumeGame();
         }
 
-        HidePauseUI();
+        DeactivatePausePanel();
+    }
+
+    public void ActivateGameOverPanel()
+    {
+        if (gameOverCanvas == null)
+        {
+            Debug.LogWarning("Game Over Canvas is NULL");
+            return;
+        }
+
+        gameOverCanvas.SetActive(true);
+        StartCoroutine(ActivateGameOverPanelCoroutine());
+    }
+
+    private IEnumerator ActivateGameOverPanelCoroutine()
+    {
+        if (gameOverPanel != null && gameOverPanel.activeSelf)
+            gameOverPanel.SetActive(false);
+
+        stageRecordText.text = $"{PhaseManager.Instance.GetCurrentPhaseName()}";
+        timeRecordText.text = $"Time record:\n{gameTimeText.text}";
+
+        yield return new WaitForSeconds(0.8f); // 게임 오버 패널 활성화 후 잠시 대기
+
+        gameOverPanel.SetActive(true);
     }
     #endregion
 

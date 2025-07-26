@@ -1,4 +1,5 @@
 using System.Collections;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using static SceneData;
@@ -34,8 +35,10 @@ public class GameManager : Singleton<GameManager>
         ResetAllSkillsToInitialValues();
     }
     
-    private void OnDestroy()
+    protected override void OnDestroy()
     {
+        base.OnDestroy();
+        
         // 이벤트 해제
         Application.quitting -= OnApplicationQuitting;
         SceneManager.sceneLoaded -= OnSceneLoaded;
@@ -150,6 +153,13 @@ public class GameManager : Singleton<GameManager>
     
     private void InitSurvivalScene()
     {
+        // 게임 상태 초기화
+        GameTime = 0f;
+        IsGamePaused = false;
+        
+        // Time.timeScale 정상화 (게임오버 시 변경될 수 있음)
+        Time.timeScale = 1f;
+        
         _Player = FindFirstObjectByType<Player>();
         if (_Player == null)
             Debug.LogWarning("Game Manager: Player를 찾지 못했습니다");
@@ -157,9 +167,32 @@ public class GameManager : Singleton<GameManager>
             Debug.Log("Game Manager: Player를 성공적으로 찾았습니다.");
 
         if (PhaseManager.Instance != null)
+        {
             _PM = PhaseManager.Instance;
+            // PhaseManager 재시작 시 리셋
+            _PM.ResetPhaseManager();
+        }
             
-        GameTime = 0f;
+        // 모든 기존 적들을 제거 (재시작 시)
+        CleanupExistingEnemies();
+        
+        Debug.Log("Survival Scene Initialized Successfully");
+    }
+    
+    /// <summary>
+    /// 씬에 남아있는 기존 적들을 정리합니다
+    /// </summary>
+    private void CleanupExistingEnemies()
+    {
+        Enemy[] existingEnemies = FindObjectsByType<Enemy>(FindObjectsSortMode.None);
+        foreach (Enemy enemy in existingEnemies)
+        {
+            if (enemy != null)
+                Destroy(enemy.gameObject);
+        }
+        
+        if (existingEnemies.Length > 0)
+            Debug.Log($"Cleaned up {existingEnemies.Length} existing enemies");
     }
 #endregion
 
@@ -186,28 +219,64 @@ public class GameManager : Singleton<GameManager>
         Debug.Log("Game Resumed");
     }
 
-    /// <summary>
-    /// 플레이어 레벨업 시 게임을 일시정지합니다 (스킬 선택용)
-    /// </summary>
-    public void PauseForLevelUp()
+    public void GameOver()
     {
-        PauseGame();
-        Debug.Log("Game Paused for Level Up - Waiting for skill selection");
+        Debug.Log("Game Over");
+
+        // 게임 오버 UI 활성화
+        if (_UM != null)
+            _UM.ActivateGameOverPanel();
+
+        // 게임 오버 코루틴 시작
+        StartCoroutine(GameOVerCoroutine());
     }
 
-    /// <summary>
-    /// 스킬 선택 완료 후 게임을 재개합니다
-    /// </summary>
-    public void ResumeFromLevelUp()
+    private IEnumerator GameOVerCoroutine()
     {
-        ResumeGame();
-        Debug.Log("Game Resumed from Level Up - Skill selected");
+        IsGamePaused = true;
+
+        Time.timeScale = 0.5f;
+
+        yield return new WaitForSecondsRealtime(1f); // 1초 동안 게임 속도 감소
+
+        Time.timeScale = 1f; // 게임 속도 원래대로
     }
 
     // 서바이벌씬에서 나오는 함수
     public void ExitSurvival()
     {
         ResetAllSkillsToInitialValues();
+    }
+
+    /// <summary>
+    /// 서바이벌 씬을 재시작합니다
+    /// </summary>
+    public void RestartSurvival()
+    {
+        Debug.Log("Restarting Survival Scene...");
+        
+        // 모든 스킬을 초기값으로 리셋
+        ResetAllSkillsToInitialValues();
+        
+        // 게임 상태 초기화
+        IsGamePaused = false;
+        GameTime = 0f;
+        
+        // Singleton 인스턴스들 재설정 (씬 재로드 대비)
+        ResetSingletonInstances();
+        
+        // 현재 씬을 다시 로드
+        LoadSceneWithIndex((int)CurrentScene.Survival);
+    }
+
+    /// <summary>
+    /// 모든 Singleton 매니저들의 인스턴스를 재설정합니다
+    /// </summary>
+    private void ResetSingletonInstances()
+    {
+        // 주의: GameManager는 DontDestroyOnLoad 오브젝트이므로 재설정하지 않음
+        // 대신 각 매니저들이 씬 로드 시 자동으로 재초기화되도록 함
+        Debug.Log("Singleton instances will be reset during scene reload");
     }
 
     // 게임 자체를 종료하는 함수
@@ -272,5 +341,4 @@ public class GameManager : Singleton<GameManager>
         }
     }
 #endregion
-
 }

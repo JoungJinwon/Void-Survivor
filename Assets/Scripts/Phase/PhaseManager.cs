@@ -38,6 +38,7 @@ public class PhaseManager : Singleton<PhaseManager>
     private void Start()
     {
         InitPhaseManager();
+        ResetPhaseManager();
         SetPhase(0);
     }
 
@@ -56,6 +57,26 @@ public class PhaseManager : Singleton<PhaseManager>
             Debug.LogError("Spawn points are not set or insufficient!");
             return;
         }
+    }
+
+    /// <summary>
+    /// Phase Manager를 초기 상태로 재설정합니다. 씬 재시작 시 사용됩니다.
+    /// </summary>
+    public void ResetPhaseManager()
+    {
+        IsPhaseActive = false;
+        phaseIndex = 0;
+        spawnInfoIndex = 0;
+        currentPhaseStartTime = 0f;
+        enemyCount = 0;
+        
+        // 기존 적 리스트 초기화
+        remainingEnemies.Clear();
+        
+        currentPhaseData = null;
+        currentPhaseSpawnInfos = null;
+        
+        Debug.Log("Phase Manager Reset Successfully");
     }
 
     public void UpdatePhase(float gameTime)
@@ -147,6 +168,11 @@ public class PhaseManager : Singleton<PhaseManager>
         IsPhaseActive = true;
 
         UiManager.Instance.UpdatePhaseText(currentPhaseData.phaseName);
+    }
+
+    public string GetCurrentPhaseName()
+    {
+        return currentPhaseData != null ? currentPhaseData.phaseName : "No Phase Active";
     }
 
     public void DecreaseEnemyCount()
